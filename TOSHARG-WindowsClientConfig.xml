@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE chapter PUBLIC "-//Samba-Team//DTD DocBook V4.2-Based Variant V1.0//EN" "http://www.samba.org/samba/DTD/samba-doc">
+<chapter id="ClientConfig">
+<chapterinfo>
+	&author.jht;
+</chapterinfo>
+
+<title>Руководство по сетевым настройкам MS Windows</title>
+
+<sect1>
+<title>Особенности и преимущества</title>
+
+<para><indexterm><primary>проблемы </primary></indexterm><indexterm><primary>сетевой клиент</primary></indexterm><indexterm><primary>инструкции для клиента</primary></indexterm> Иногда сетевые администраторы сообщают о сложностях совместной работы клиентов Microsoft Windows с серверами Samba. Кажется, что некоторые люди просто не могут принять тот факт, что правильный способ настроить клиента сети  MS Windows - точно такой же, как и в случае использования серверов MS Windows NT4 или 200x. Однако все еще существует повторяющаяся необходимость предоставлять детальные инструкции по настройке клиента Windows.</para>
+
+<para><indexterm><primary>настройка клиента с графическими иллюстрациями</primary></indexterm><indexterm><primary>критические аспекты настройки</primary></indexterm> Цель этой главы - графическое изображение настройки клиентов MS Windows в наиболее общих критических аспектах. Опытный сетевой администратор не будет заинтересован в деталях этой главы.</para>
+
+</sect1>
+
+<sect1>
+<title>Технические детали</title>
+
+<para><indexterm><primary>настройка протокола TCP/IP</primary></indexterm><indexterm><primary>сетевая принадлежность</primary></indexterm> В этой главе обсуждается настройка протокола TCP/IP, так же, как и сетевой принадлежности, для платформ, которые сегодня широко распространены. Это:</para>
+
+<itemizedlist>
+	<listitem><para>Microsoft Windows XP Professional</para></listitem>
+	<listitem><para>Windows 2000 Professional</para></listitem>
+	<listitem><para>Windows Millennium edition (Me)</para></listitem>
+</itemizedlist>
+
+	<sect2>
+	<title>Настройка TCP/IP</title>
+
+	<para><indexterm><primary>проблемы с сетевыми настройками</primary></indexterm><indexterm><primary>поражение пользователей сети</primary></indexterm> Строитель дома должен быть уверен, что вся конструкция стоит на крепком фундаменте. То же верно для строителя сетевой системы, основанной на TCP/IP. Проблемы с фундаментальными сетевыми натсройками будут поражать всех сетевых пользователей до тех пор, пока не будут решены.</para>
+
+	<para><indexterm><primary>статические IP-адреса</primary></indexterm><indexterm><primary>DHCP</primary></indexterm> Рабочие станции и серверы MS Windows могут быть настроены либо сос статическими IP-адресами, либо через DHCP. Примеры, которые следуют ниже, демонстрируют использование DHCP, и только вскользь упоминают о тех ситуациях, когда эффективны статические настройки IP.</para>
+
+	<para><indexterm><primary>shortcuts</primary></indexterm><indexterm><primary>abbreviated keystrokes</primary></indexterm> Для открытия различных экранов настроек можно использовать ярлыки или горячие клавиши, однако было принято решение основывать все примеры в этой главе на использовании кнопки <guibutton>Пуск</guibutton>.</para>
+
+		<sect3>
+		<title>MS Windows XP Professional</title>
+
+		<para><indexterm><primary>Windows XP TCP/IP</primary></indexterm> Есть два пути к панели настроек TCP/IP  Windows XP. Выберите способ доступа, который Вам нравится:</para>
+
+		<para>Щелкните <guimenu>Пуск -&gt; Панель управления -&gt; Сетевые подключения</guimenu>.</para>
+
+		<para><emphasis>Либо</emphasis> щелкните <guimenu>Пуск -&gt;</guimenu>, and right-click <guimenu>My Network Places</guimenu> then select <guimenuitem>Properties</guimenuitem>.</para>
+
+		<para><indexterm><primary>Windows XP Professional</primary></indexterm> Следующая процедура проведет Вас шаг за шагом через процесс настройки TCP/IP Windows XP Professional:</para>
+
+		<procedure>
+			<step><para><indexterm><primary>Подключение по локальной сети</primary></indexterm><indexterm><primary>сетевой мост</primary></indexterm><indexterm><primary>интерфейс</primary></indexterm> В некоторых установках интерфейс будет называться <guimenu>Подключение по локальной сети</guimenu>, а в других - <guimenu>Сетевой мост</guimenu>. На нашей системе он называется <guimenu>Сетевой мост</guimenu>. Щелкните правой кнопкой по <guimenu>Сетевой мост -&gt; Свойства</guimenu>. Смотрите <link linkend="WXPP002"/>. <figure id="WXPP002"><title>Настройка сетевого моста</title><imagefile>WXPP002</imagefile></figure></para>
+			</step>
+
+			<step><para><indexterm><primary>настройки протокола TCP/IP</primary></indexterm><indexterm><primary>Настройка сетевого моста</primary></indexterm> Вкладка конфигурации сетевого моста или подключения по локальной сети используется, чтобы установить настройки протокола TCP/IP. В списке <guimenuitem>Это подключение использует:</guimenuitem>, шелкните <guimenu>Протокол TCP/IP</guimenu>,затем щелкните на кнопке <guibutton>Свойства</guibutton>.</para>
+
+			<para><indexterm><primary>Работа с включенным DHCP</primary></indexterm><indexterm><primary>Автоматически получать IP-адрес</primary></indexterm> Настройки по умолчанию - работа с включенным DHCP (например, <quote>Получать IP-адрес автоматически</quote>). Смотри <link linkend="WXPP003"/>. <figure id="WXPP003">
+				<title>Свойства TCP/IP</title>
+				<imagefile>WXPP003</imagefile>
+			</figure></para>
+
+			<para><indexterm><primary>DHCP</primary></indexterm><indexterm><primary>TCP/IP</primary></indexterm><indexterm><primary>DNS</primary></indexterm><indexterm><primary>сервер DHCP ISC</primary></indexterm> Многие сетевые администраторы хотят использовать DHCP для настройки всех установок клиентсткого стека протокола TCP/IP. (За информацией по настройке сервера DHCP от ISC server for Windows client support see <link linkend="DHCP">the DNS and DHCP Configuration Guide</link>, <link linkend="DHCP">DHCP Server</link>).</para>
+
+			<para><indexterm><primary>фиксированный IP-адрес</primary></indexterm><indexterm><primary>маска подсети</primary></indexterm><indexterm><primary>адрес шлюза</primary></indexterm> Если необходимо предоставить статический IP-адрес, щелкните на <quote>Использовать следующий IP-адрес</quote> и введите IP-адрес, маску подсети и адрес шлюза по умолчанию в предоставленных полях ввода.</para></step>
+
+			<step><para><indexterm><primary>Расширенная настройка TCP/IP </primary></indexterm><indexterm><primary>натсройка TCP/IP </primary></indexterm><indexterm><primary>IP-псевдонимы</primary></indexterm><indexterm><primary>шлюзы по умолчанию</primary></indexterm> Нажмите кнопку <guibutton>Дополнительно</guibutton>, чтобы перейти к настройке TCP/IP. Откроется панель, на которой можно задавать дополнительные IP-адреса для интерфейса. Техническое название для дополнительных адресов -<emphasis>IP-псевдонимы</emphasis>, и доподлнительно эта панель позволяет установить больше шлюзов по умолчанию (маршрутизаторов). В большинстве случаев использования DHCP не будет необходимости в создании дополнительных настроек. Смотрите <link linkend="WXPP005"/>, чтобы увидеть, как выглядит эта панель. <figure id="WXPP005"><title>Расширенные сетевые установки</title><imagefile>WXPP005</imagefile></figure></para>
+
+			<para><indexterm><primary>DNS</primary></indexterm><indexterm><primary>WINS</primary></indexterm><indexterm><primary>DHCP</primary></indexterm> Для DNS и WINS могут потребоваться фиксированные настройки - если они не предоставляются автоматически через DHCP.</para></step>
+
+			<step><para><indexterm><primary>настройки DNS-сервера</primary></indexterm><indexterm><primary>вручную настроенные установки DNS</primary></indexterm> Щелкните по вкладке  <guimenu>DNS</guimenu> для того, чтобы добавить установки сервера DNS. Система в этом примере использует настроенные вручную установки сервера DNS. По окончанию изменений щелкните по кнопке <guibutton>OK</guibutton>, чтобы подтвердить изменения. Смотрите <link linkend="WXPP014"/>. <figure id="WXPP014"> <title>Настройка DNS</title> <imagefile>WXPP014</imagefile> </figure></para></step>
+
+			<step><para><indexterm><primary>WINS</primary></indexterm><indexterm><primary>ручной ввод сервера WINS </primary></indexterm> Щелкните по вкладке <guibutton>WINS</guibutton>, чтобы добавить сервера WINS вручную. В этом шаге продемонстрирован пример системы, которая использует установки сервера WINS, заданные вручную. По окончанию изменений щелкните по кнопке <guibutton>OK</guibutton> для их сохранения. Смотри <link linkend="WXPP009"/>. <figure id="WXPP009"><title>Настройка WINS</title><imagefile>WXPP009</imagefile></figure></para></step>
+		</procedure>
+
+		</sect3>
+
+		<sect3>
+		<title>MS Windows 2000</title>
+
+		<para><indexterm><primary>Windows 2000 Professional TCP/IP</primary></indexterm><indexterm><primary>вкладка настройки TCP/IP</primary></indexterm> Есть два способа открыть вкладку настройки Windows 2000 Professional TCP/IP. Выберите способ доступа, который Вам нравится.:</para>
+
+		<para>Щелкните <guimenu>Пуск -&gt; Панель управления -&gt; Сетевые подключения</guimenu>.</para>
+
+		<para><emphasis>Или </emphasis> кликните <guimenu>Пуск</guimenu>, затем правой кнопкой по <guimenu>Сеть</guimenu>, и выберите <guimenuitem>Свойства</guimenuitem>.</para>
+
+		<para><indexterm><primary>Windows XP Professional TCP/IP</primary></indexterm> Следующая процедура проведет Вас шаг за шагом через процесс настройки Windows XP Professional TCP/IP:</para>
+
+		<procedure>
+			<step><para>Щелкните правой кнопкой <guimenu>Подключение по локальной сети</guimenu>,затем щелкните  <guimenuitem>Свойства</guimenuitem>. Смотри <link linkend="w2kp001"/>. <figure id="w2kp001"><title>Свойства подключения по локальной сети</title><imagefile>w2kp001</imagefile></figure></para></step>
+
+			<step><para><indexterm><primary>Свойства подключения по локальной сети</primary></indexterm><indexterm><primary>настройки протокола TCP/IP</primary></indexterm> Свойства подключения по локальной сети используются для установки настроек протокола TCP/IP. Щелкните на <guimenu>Протокол TCP/IP</guimenu> в списке <guimenuitem>Используемые компоненты:</guimenuitem>, затем щелкните кнопку <guibutton>Свойства</guibutton>.</para></step>
+
+			<step><para><indexterm><primary>включенный DHCP</primary></indexterm><indexterm><primary>автоматический IP-адрес </primary></indexterm> Настройка по умолчанию - включенный DHCP (т.е. <quote>Получать IP-адрес автоматически</quote>). See <link linkend="w2kp002"/>. <figure id="w2kp002"><title>Свойства TCP/IP</title><imagefile>w2kp002</imagefile></figure></para>
+
+			<para><indexterm><primary>DHCP</primary></indexterm><indexterm><primary>установки стека протолов</primary></indexterm> Многие сетевые администраторы хотят использовать DHCP для настройки всех установок стека протоколов TCP/IP . (За информацией о том, как настроить сервер DHCP от ISC для поддержки клиентов Windows, смотри <link linkend="DHCP"/>.</para>
+
+			<para><indexterm><primary>статический IP-адрес</primary></indexterm><indexterm><primary>сетевые клиенты</primary></indexterm> Если необходимо предоставить статический IP-адрес, щелкните <quote>Использовать следующий IP-адрес</quote> и введите IP-адрес, маску подсети и  шлюз по умолчанию в соответствующие поля. В этом примере мы предполагаем, что все сетевые клиенты будут настроены через DHCP.</para></step>
+
+			<step><para>Щелкните кнопку <guimenu>Дополнительно</guimenu>, чтобы продолжить с настройкой TCP/IP. Обратитесь к <link linkend="w2kp003"/>. <figure id="w2kp003"><title>Расширенные сетевые настройки</title><imagefile>w2kp003</imagefile></figure></para>
+
+			<para><indexterm><primary>DNS</primary></indexterm><indexterm><primary>WINS</primary></indexterm><indexterm><primary>DHCP</primary></indexterm> Для DNS и WINS могут потребоваться фиксированные настройки - если они не предоставляются автоматически через DHCP.</para></step>
+
+			<step><para><indexterm><primary>настройки сервера DNS</primary></indexterm><indexterm><primary>сохранение настроек</primary></indexterm> Щелкните вкладку <guimenu>DNS</guimenu>, чтобы добавить настройки сервера DNS. Система из примера использует ручные настройки DNS. По окончанию внесения изменений щелкните <guibutton>OK</guibutton>, чтобы применить настройки. Смотри <link linkend="w2kp004"/>. <figure id="w2kp004"><title>Настройка DNS</title><imagefile>w2kp004</imagefile></figure></para></step>
+
+			<step><para><indexterm><primary>manual WINS server entries</primary></indexterm><indexterm><primary>WINS</primary></indexterm> Щелкните по вкладке <guibutton>WINS</guibutton> для того, чтобы добавить установки сервера WINS. В этом шаге показана система, использующая настроенные вручную установки сервера WINS. По окончанию изменений щелкните по кнопке  <guibutton>OK</guibutton>, чтобы подтвердить изменения. Смотрите <link linkend="w2kp005"/>. <figure id="w2kp005">
+				<title>Настройка WINS</title><imagefile>w2kp005</imagefile>
+			</figure></para></step>
+
+		</procedure>
+
+		</sect3>
+
+		<sect3>
+		<title>MS Windows Me</title>
+
+		<para><indexterm><primary>Windows Millennium edition (Me) TCP/IP</primary></indexterm><indexterm><primary>Windows Millennium</primary></indexterm><indexterm><primary>настройки TCP/IP</primary></indexterm> Есть два способа открыть панель настроек TCP/IP Windows Millennium edition (Me). Выберите способ доступа, который Вам нравится:</para>
+
+		<para>Щелкните <guimenu>Пуск -&gt; Панель управления -&gt; Сетевые подключения</guimenu>.</para>
+
+		<para><indexterm><primary>Мои сетевые места</primary></indexterm><indexterm><primary>Свойства</primary></indexterm><emphasis>Либо</emphasis> щелкните на <guimenu>Пуск -&gt;</guimenu>, и щелкните правой кнопкой на <guimenu>Мои сетевые места</guimenu>, затем выберите <guimenuitem>Свойства</guimenuitem>.</para>
+
+		<para><indexterm><primary>Windows Me TCP/IP</primary></indexterm> Следующая процедура шаг за шагом проведет Вас через процесс настройки TCP/IP Windows Me:</para>
+
+		<procedure>
+			<step><para><indexterm><primary>Протокол TCP/IP</primary></indexterm> В списке, помеченном <guimenuitem>Установлены следующие сетевые компоненты:</guimenuitem>, щелкните <guimenu>Протокол TCP/IP</guimenu>, затем щелкните кнопку  <guibutton>Свойства</guibutton>. Смотри <link linkend="WME001"/>. <figure id="WME001">
+				<title>Вкладка "Настройка сети" Windows Me</title>
+				<imagefile>WME001</imagefile>
+			</figure></para></step>
+
+			<step><para><indexterm><primary>DHCP</primary></indexterm><indexterm><primary>TCP/IP</primary></indexterm><indexterm><primary>ISC DHCP server</primary></indexterm> Многие сетевые администраторы хотят использовать DHCP, чтобы настраивать все установки стека протоколов TCP/IP клиентов. (За информацией о настройке сервера DHCP от ISC для поддержки клиентов Windows обратитесь к <link linkend="DHCP">Руководство по настройке  DNS и DHCP</link>, <link linkend="DHCP">Сервер DHCP</link>. По умолчанию рабочие станции Windows Me настроены на работу со включенным DHCP (т.е., <guimenu>Получать IP-адрес автоматически</guimenu> включено). Смотри <link linkend="WME002"/>. <figure id="WME002"><title>IP-адрес</title><imagefile>WME002</imagefile></figure></para>
+
+			<para><indexterm><primary>Задать IP-адрес</primary></indexterm><indexterm><primary>маска посети</primary></indexterm><indexterm><primary>DHCP</primary></indexterm> Если необходимо задать статический IP-адрес, щелкните на  <guimenuitem>Задать IP-адрес</guimenuitem> и введите IP-адрес и маску подсети в соответствующие поля. В этом примере мы предполагаем, что все сетевые клиенты будут настроены с использованием DHCP.</para></step>
+
+			<step><para><indexterm><primary>DNS</primary></indexterm><indexterm><primary>WINS</primary></indexterm> Для DNS и WINS могут понадобиться фиксированные настройки - если эти установки не задаются автоматически через DHCP.</para></step>
+
+			<step><para><indexterm><primary>WINS server settings</primary></indexterm> Если необходимо, щелкните вкладку <guimenu>Настройка DNS</guimenu>, чтобы добавить настройки DNS-сервера. Щелкните вкладку <guibutton>Настройка WINS </guibutton>, чтобы добавить установки WINS-сервера. Вкладка <guimenu>Шлюз</guimenu> позволяет добавить к настройкам сетевого интерфейса дополнительные шлюзы (адреса роутеров). В основном в случае использования DHCP нет необходимости задавать эти настройки вручную.</para></step>
+
+			<step><para><indexterm><primary>WINS</primary></indexterm><indexterm><primary>настроенные вручную</primary></indexterm> В следующем примере показаны установки WINS, настроенные вручную. Смотрите <link linkend="WME005"/>. По окончанию внесения изменений щелкните <guibutton>OK</guibutton>, чтобы подтвердить настройки. <figure id="WME005"><title>Настройка DNS</title><imagefile>WME005</imagefile></figure></para>
+
+			<para><indexterm><primary>единственный сервер DHCP</primary></indexterm><indexterm><primary>множество доменов или рабочих групп Windows</primary></indexterm> Это пример системы, которая использует ручные настройки WINS. Одна из ситуаций, где это может быть применимо - сеть, которая имеет единственный сервер DHCP, который выдает настройик для нескольких доменов или рабочих групп Windows. Смотрите <link linkend="WME003"/>. <figure id="WME003"><title>Настройка WINS</title><imagefile>WME003</imagefile></figure></para></step>
+		</procedure>
+
+
+		</sect3>
+
+	</sect2>
+
+	<sect2>
+	<title>Присоединение к домену: Windows 2000/XP Professional</title>
+
+	<para><indexterm><primary>Windows NT/200x/XP Professional</primary></indexterm><indexterm><primary>безопасность домена</primary></indexterm><indexterm><primary>участник домена</primary></indexterm><indexterm><primary>присоединение к домену</primary></indexterm> Платформы Microsoft Windows NT/200x/XP Professional могут принимать участие в безопаснсти домена. Этот раздел проведет Вас шаг за шагом через процесс включения машины с Windows 200x/XP Professional в среду безопасности домена. Необходимо отметить, что процесс присоединения к домену, управляемому Windows NT4/200x идентичен присоединению к домену, управляемому Samba PDC.</para>
+
+	<procedure>
+		<step><para>Нажмите <guimenu>Пуск</guimenu>.</para></step>
+
+		<step><para>Щелкните правой кнопкой <guimenu>Мой компьютер</guimenu>, затем выберите <guimenuitem>Свойства</guimenuitem>.</para></step>
+
+		<step><para><indexterm><primary>Панель управления</primary></indexterm> Открывшаяся панель является той же самой, которую можно увидеть, щелкнув <guimenu>Система</guimenu> в Панели управления. Смотри <link linkend="wxpp001"/>. <figure id="wxpp001"><title>Вкладка "Общие"</title><imagefile>wxpp001</imagefile></figure></para></step>
+
+		<step><para><indexterm><primary>Имя компьютера</primary></indexterm> Щелкните вкладку <guimenu>Имя компьютера</guimenu>. Эта панель показывает <guimenuitem>Описание компьютера</guimenuitem>, <guimenuitem>Полное имя компьютера</guimenuitem> и <guimenuitem>Рабочую группу</guimenuitem> или <guimenuitem>Домен</guimenuitem>.</para>
+
+		<para><indexterm><primary>Сетевая идентификация</primary></indexterm><indexterm><primary>мастер настройки </primary></indexterm>Щелчок по кнопке <guimenu>Сетевая идентификация</guimenu> запустит мастера настройки. Не используйте это с Samba-3. Если Вы хотите изменить имя компьютера или присоединиться / покинуть домен, щелкните по кнопке <guimenu>Изменить</guimenu>. Смотри <link linkend="wxpp004"/>. <figure id="wxpp004"><title>Вкладка "Имя компьютера"</title><imagefile>wxpp004</imagefile></figure></para></step>
+
+		<step><para>Щелкните по <guimenu>Изменить</guimenu>. Эта панель показывает, что наша машина, взятая для примера (TEMPTATION), входит в рабочую группу WORKGROUP. Мы присоед инимся к домену MIDEARTH. Смотри <link linkend="wxpp006"/>. <figure id="wxpp006"><title>Вкладка "Изменение имени компьютера"</title><imagefile>wxpp006</imagefile></figure></para></step>
+
+		<step><para><indexterm><primary>переключатель "домен"</primary></indexterm> Введите имя <guimenu>MIDEARTH</guimenu> в поле ниже переключателя "домен".</para>
+
+        <para>Эта панель показывает, что наша машина, взятая для примера  (TEMPTATION), настроена для присоединения к домену под названием MIDEARTH. Смотри <link linkend="wxpp007"/>. <figure id="wxpp007"><title>Панель изменения имени компьютера &smbmdash; Домен MIDEARTH.</title><imagefile>wxpp007</imagefile></figure></para></step>
+
+		<step><para><indexterm><primary>реквизиты</primary></indexterm><indexterm><primary>имя пользователя и пароль</primary></indexterm> Сейчас щелкните кнопку <guimenu>OK</guimenu>. Должно появиться диалоговое окно, позволяющее Вам ввести реквизиты (имя пользователи и пароль) учетной записи администратора домена, которая имеет полномочия добавлять машины в домен.</para>
+
+        <para><indexterm><primary>root</primary></indexterm> Введите имя  <quote>root</quote> и пароль root от Вашего сервера Samba-3. Смотрите <link linkend="wxpp008"/>. <figure id="wxpp008">
+			<title>Изменение имени компьютера &smbmdash; панель ввода имени пользователя и пароля.</title><imagefile>wxpp008</imagefile>
+		</figure></para></step>
+
+		<step><para>Щелкните <guimenu>OK</guimenu>.</para>
+
+		<para><indexterm><primary>Добро пожаловать</primary></indexterm><indexterm><primary>перезаружена</primary></indexterm> Должно появиться диалоговое окно <quote>Добро пожаловать в домен MIDEARTH.</quote>. Теперь машина должна быть перезагружена. Присоединение к домену завершено.</para></step>
+
+	</procedure>
+
+	</sect2>
+
+	<sect2>
+	<title>Настройка входа в домен: Windows 9x/Me</title>
+
+	<para><indexterm><primary>Windows 9x/Me</primary></indexterm><indexterm><primary>вход в домен</primary></indexterm><indexterm><primary>LanManager</primary></indexterm> Мы следуем соглашению, согласно которому большинство говорит, что машины с Windows 9x/Me могут входить в домен. Истина в том, что эти платформы могут использовать только протоколы входа LanManager.</para>
+
+	<note><para><indexterm><primary>Windows XP Home edition</primary></indexterm><indexterm><primary>LanManager</primary></indexterm><indexterm><primary>сетевой вход</primary></indexterm> Windows XP Home edition не может участвовать в сетевых входах в домен или LanManager.</para></note>
+
+	<procedure>
+		<step><para>Щелкните правой кнопкой на значке <guimenu>Сетевое окружение</guimenu></para></step>
+
+		<step><para>Вкладка "Настройка сети"  позволяет изменить все общие настройки сети. Смотри <link linkend="WME009"/>. <figure id="WME009"><title>Вкладка "Сеть"</title><imagefile>WME009</imagefile></figure></para>
+
+		<para><indexterm><primary>Клиент сетей Microsoft</primary></indexterm><indexterm><primary>Свойства</primary></indexterm> Удостоверьтесь, что драйвер <guimenu>Клиент для сетей Microsoft</guimenu> устанволен, как показано. Щелкните элемент <guimenu>Клиент для сетей Microsoft</guimenu> в списке <guimenu>Установлены следующие сетевые компоненты:</guimenu>. Затем щелкните кнопку <guibutton>Свойства</guibutton>.</para></step>
+
+		<step><para><indexterm><primary>Свойства сети</primary></indexterm><indexterm><primary>вход в сеть</primary></indexterm> Панель свойств клиента для сетей Microsoft является корректным местом для настройки установок входа в сеть. Смотрите <link linkend="WME010"/>. <figure id="WME010"><title>Вкладка свойств клиента сетей Microsoft.</title><imagefile>WME010</imagefile></figure></para>
+
+		<para><indexterm><primary>имя домена Windows NT</primary></indexterm><indexterm><primary>имя домена</primary></indexterm> Введите имя домена Windows NT, выберите переключатель <guimenu>Входить в домен Windows NT</guimenu> и щелкните  <guimenu>OK</guimenu>.</para></step>
+
+		<step><para><indexterm><primary>Идентификация</primary></indexterm><indexterm><primary>рабочая группа</primary></indexterm><indexterm><primary>имя копьютера</primary></indexterm> Щелкните на кнопке <guimenu>Идентификация</guimenu>. Именно в этом месте необходимо установить имя рабочей группы (домена) и имя машины (компьютера). Смотри <link linkend="WME013"/>. <figure id="WME013"><title>Вкладка идентификации</title><imagefile>WME013</imagefile></figure></para></step>
+
+		<step><para><indexterm><primary>Контроль доступа</primary></indexterm><indexterm><primary>групповые учетные записи</primary></indexterm><iпndexterm><primary>пользователь домена</primary>  button. , . WME014</iпndexterm></para></step>
+
+	</procedure>
+
+	</sect2>
+
+</sect1>
+
+<sect1>
+<title>Общие ошибки</title>
+
+<para><indexterm><primary>сетевые системы</primary></indexterm><indexterm><primary>ошибки, которые могут повлиять</primary></indexterm> Наиболее общие ошибки, которые могут повлиять на сетевые системы Windows, включают:</para>
+
+<itemizedlist>
+	<listitem><para>Неверный адрес IP.</para></listitem>
+	<listitem><para>Неверная или несовпадающая маска сети.</para></listitem>
+	<listitem><para>Неверный адрес маршрутизатора (роутера).</para></listitem>
+	<listitem><para>Неверный адрес DNS-сервера.</para></listitem>
+	<listitem><para>Неверный адрес WINS-сервера.</para></listitem>
+	<listitem><para>Использование настройки Network Scope &smbmdash; будьте с ней осторожны!</para></listitem>
+</itemizedlist>
+
+<para><indexterm><primary>Windows NT/200x/XP Professional</primary></indexterm><indexterm><primary>невозможно присоединение к домену</primary></indexterm> Наиболее часто встречающиеся и общие причины, по которым клиент Windows NT/200x/XP Professional не может присоединиться к домену, управляемому Samba:</para>
+
+<itemizedlist>
+	<listitem><para>В файле &smb.conf; нет корректной настройки <smbconfoption name="add machine script"/>.</para></listitem>
+	<listitem><para>Учетной записи <quote>root</quote> нет в парольной базе.</para></listitem>
+	<listitem><para>Попытка использования учетной записи пользователя вместо учетной записи <quote>root</quote> для присоединения машины к домену.</para></listitem>
+	<listitem><para>Открытые соединения с рабочей станции к серверу.</para></listitem>
+	<listitem><para>Настройки файрвола или фильтра на стороне клиента или Samba-сервере.</para></listitem>
+</itemizedlist>
+
+</sect1>
+
+</chapter>

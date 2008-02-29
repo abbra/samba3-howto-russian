@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE chapter PUBLIC "-//Samba-Team//DTD DocBook V4.2-Based Variant V1.0//EN" "http://www.samba.org/samba/DTD/samba-doc">
+<chapter id="largefile">
+<chapterinfo>
+	&author.jeremy;
+	&author.jht;
+	<pubdate>9 Марта 2005г.</pubdate>
+</chapterinfo>
+<title>Обработка больших каталогов</title>
+
+<para><indexterm><primary>падение производительности</primary></indexterm><indexterm><primary>большое число файлов</primary></indexterm><indexterm><primary>большой каталог</primary></indexterm> Samba-3.0.12 и более поздние имеют решение для организаций, которые встретились с падением производительности из-за проблемы использования Samba-3 с приложениям, требующими большое число файлов (100 тыс. или более) на каталог.</para>
+
+<para><indexterm><primary>читать каталог в память</primary></indexterm><indexterm><primary>странная семантика удаления</primary></indexterm> Ключевым вопросом было исправление обработки каталога, чтобы читать только текущий запрошенный список, вместо того, чтобы читать весь каталог в память (так было до samba-3.0.11) перед выдачей имен. Это должно было испортить приложения OS/2, у которых очень странная семантика удаления, но благодаря краже логики из Samba4 (спасибо, Tridge), текущий код в 3.0.12 обрабатывает это корректно.</para>
+
+<para><indexterm><primary>большой каталог</primary></indexterm><indexterm><primary>производительность</primary></indexterm> Чтобы установить приложение, которое требует большое число файлов в каталоге, таким образом, который не приведет к падению производительности, сделайте следующие шаги:</para>
+
+<para><indexterm><primary>привести файлы к единому регистру</primary></indexterm> Сначала Вам необходимо привести имена файлов каталога к единому регистру, верхнему или нижнему &smbmdash; выбирайте сами (я выбрал верхний, потому что у меня все файлы уже были названы в верхнем регистре). Затем создайте новый общий ресурс для приложения, как следует ниже: <smbconfblock><smbconfsection name="[bigshare]"/><smbconfoption name="path">/data/manyfilesdir</smbconfoption><smbconfoption name="read only">no</smbconfoption><smbconfoption name="case sensitive">True</smbconfoption><smbconfoption name="default case">upper</smbconfoption><smbconfoption name="preserve case">no</smbconfoption><smbconfoption name="short preserve case">no</smbconfoption></smbconfblock></para>
+
+<para><indexterm><primary>выбор регистра</primary></indexterm><indexterm><primary>соответствующий регистрmatch case</primary></indexterm><indexterm><primary>верхний регистр</primary></indexterm> Конечно, используйте свой собственный путь и настройки, но устанавливайте опции регистра на соответствие регистру всех файлов в Вашем каталоге. Путь должен указывать на большой каталог, необходимый для приложения &smbmdash; для любых новых файлов, создаваемых в нем и в любых путях ниже, smbd установит имя в верхний регистр, но smbd более не нужно будет сканировать каталог в поисках имен: он знает, что если файл не существует в верхнем регистре, он не существует вовсе.</para>
+
+<para><indexterm><primary>нечуствительность к регистру</primary></indexterm><indexterm><primary>consistent case</primary></indexterm><indexterm><primary>smbd</primary></indexterm> Секрет этого лежит в строке <smbconfoption name="case sensitive">True</smbconfoption>. Это заставляет smbd никогда не искать версии имен файла в различном регистре. Так что если приложение запрашивает файл <filename>FOO</filename>, и он не может быть найден простым вызовом stat, то smbd незамедлительно вернет ошибку "файл не найден", не сканируя весь каталог в поисках версий в различных регистрах. Другие строки <filename>xxx case xxx</filename> помогают этому работать, устанавливая явным образом регистр имен всех файлов, создаваемых &smbd;.</para>
+
+<para><indexterm><primary>верхний регистр</primary></indexterm><indexterm><primary>строфа</primary></indexterm><indexterm><primary>имена файлов в нижнем регистре</primary></indexterm> Помните, все файлы и каталоги ниже каталога, указанного в <parameter>path</parameter>, должны быть в верхнем регистре при использовании этой строфы &smb.conf;, потому что с этими установками &smbd; не сможет найти имена файлов в нижнем регистре. Также отметьте, что это делается на  поресурсной основе, то есть этот параметр можнго устанавливать только для ресурсов, обслуживающих приложение с проблемным поведением (использующее большое число записей в каталоге) &smbmdash; остальные Ваши ресурсы &smbd; трогать не нужно.</para>
+
+<para>Это делает smbd намного более быстрым при обработке больших каталогов. Мой тестовый случай имел более 100 тыс. файлов, и сейчас smbd работает с этим очень эффективно.</para>
+
+</chapter>

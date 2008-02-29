@@ -1,0 +1,816 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE chapter PUBLIC "-//Samba-Team//DTD DocBook V4.2-Based Variant V1.0//EN" "http://www.samba.org/samba/DTD/samba-doc">
+<chapter id="FastStart">
+<chapterinfo>
+	&author.jht;
+</chapterinfo>
+
+<title>Быстрый старт: лекарство от нетерпения</title>
+
+<para>Когда мы впервые запросили пожелания для включения в документацию Samba HOWTO, кто-то написал запрос на примерные конфигурации &smbmdash; да числом побольше. Необходимо отметить, что это трудно сделать без того, чтобы потерять большую ценность, которую представляют выдержки из рабоч их систем. Именно это и делает отстальная часть этого документа. Она делает это с расширенными описаниями возможных настроек в контексте главы, которая касается именно их. Мы надеемся, что эта глава и есть то лекарство. которое требовалось.</para>
+
+<para>Информация в этой главе очень редко сравнивается с книгой <quote>Samba-3 by Example</quote>, которая была написана после того, как оригинальная версия этой книги была почти завершена. <quote>Samba-3 by Example</quote> была результатом обратной связи от рецензентов во время редактирования финальной копии первой редакции. Интересно, что отзывы от читателей являлись отражением таковых от рецензентов. В любом случае, полтора месяца прошли в проведении основных исследований, для того, чтобы понять, что же будет полезно как опытным сетевым администраторам, так и новичкам.</para>
+
+<para>Итак, по предназначению книга <quote>The Official Samba-3 HOWTO &amp; Reference Guide</quote> эквивалентна руководству по ремонту автомеханика. Книга <quote>Samba-3 by Example</quote> эквивалентна  руководству для водителя, которое объясняет, как водить машину. Если Вы хотите завершенных примеров настройки сети, обратитесь к <ulink url="http://www.samba.org/samba/docs/Samba3-ByExample.pdf">Samba-3 by Example</ulink>.</para>
+
+<sect1>
+<title>Особенности и сильные стороны</title>
+
+<para>Для создания простейшей работающей системы Samba нуждается в очень небольшой настройке . В этой главе мы пройдем от простого к сложному, рассмотрев все шаги и изменения в файле настроек, требуемые для работы. Пожалуйста, отметьте, что исчерпывающе настроенная система, скорее всего, будет иметь дополнительные удобные функции. Эти дополнительные функции описываются в остальной части этого документа.</para>
+
+<para>Примеры, использованные здесь, были получены от большого числа людей, которые запрашивали примеры настроек. Все, относящееся к реальным организациям, было убрано, чтобы защитить невиновных, а любая ссылка на ненастоящие несуществующие сети освобождает.</para>
+
+</sect1>
+
+<sect1>
+<title>Описание примеров</title>
+
+<para>В первом наборе примерных настроек мы рассмотрим случай исключительно простых системных требований. Есть реальное искушение сделать что нибудь слишком сложным с минимумом усилий. </para>
+
+<para><link linkend="anon-ro"/> описывает тип сервера, который мог бы быть достаточным для раздачи образов CD-ROM, или хранить справочные документы для использования сетевыми клиентами. Это конфигурация также обсуждается в <link linkend="StandAloneServer"/>, <link linkend="RefDocServer"/>. Цель этой конфигурации - предоставить разделяемый диск только-для-чтения с доступом для всех, даже гостей.</para>
+
+<para>Второй пример показывает минимальую конфиуграцию принт-сервера, на котором может печатать любой, имеющий корректные драйверы принтера на своем компьютере. Копия такой системы описана в  <link linkend="StandAloneServer"/>, <link linkend="SimplePrintServer"/>.</para>
+
+<para>В следующем примере описан безопасный офисный файл- и принт-сервер, который доступен только для пользователей, обладающих учётными записями в системе. Хотя этот сервер и близко напоминает файл- и принт-сервер для рабочей группы, но он должен быть более безопасным, чем машина с анонимным доступом. Система этого типа подойдёт для типичного небольшого офиса. Этот сервер не обеспечивает возможности входа в сеть и не предагает управления доменом; вместо этого он является просто хранилищем с доступом по сети (NAS) и принт-сервером.</para>
+
+<para>В следующем примере рассмотрены более сложные системы, которые либо интегрируются в существующие сети на базе MS Windows, либо целиком заменяют их. Описаны серверы - участники домена, так же, как и контроллеры домена на базе Samba (PDC/BDC). В завершени описана большая распределенная сеть с удаленными офисами .</para>
+
+</sect1>
+
+<sect1>
+<title>Рабочие примеры</title>
+
+<para>Примеры настроек содержат всё необходимое, чтобы запустить Samba. Они не охватывают базовую настройку операционной системы, это явно вне целей этого текста.</para>
+
+<para>Также предполагается, что Samba был корректно установлен, либо посредством пакетов от производителя операционной системы, либо другими средствами.</para>
+
+	<sect2>
+	<title>Одиночный сервер</title>
+
+	<para><indexterm><primary>Тип сервера</primary><secondary>Одиночный</secondary></indexterm> Одиночный сервер предполагает не более, чем простой факт, что он не является контроллером домена, следовательно, не участвует в управлении доменом.  Это может быть простой сервер (похожий на сервер для рабочей группы), или сложный, входящий в контекст безопасности домена.</para>
+
+	<para>По мере разработки примеров предпринимались все усилия, чтобы развивать системы к большим возможностям, примерно так же, как может случиться в реальном офисе: по мере его роста необходимы изменения.</para>
+
+		<sect3 id="anon-ro">
+		<title>Анонимный сервер документов только-для-чтения.</title>
+
+		<para><indexterm><primary>только-для-чтения</primary><secondary>сервер</secondary></indexterm> Цель этого типа сервера - сделать доступными любому пользователю документы или файлы, которые размещены на общем ресурсе. Общий ресурс может быть как областью для хранения файлов, так и CD-ROMом  или образом компакт-диска. </para>
+
+		<itemizedlist>
+			<listitem><para>Расположение разделяемого ресурса в файловой системе будет <filename>/export</filename>.</para></listitem>
+
+			<listitem><para>Всеми файлами будет владеть пользователь Jack Baumbach. Именем его учетной записи будет <emphasis>jackb</emphasis>. Его пароль будет <emphasis>m0r3pa1n</emphasis>&smbmdash; конечно, это только для примера; не используйте этот пароль в рабочей среде потому что все читатели этого документа будут знать его.</para></listitem>
+		</itemizedlist>
+
+		<procedure>
+		<title>Процедура установки: сервер только-для-чтения</title>
+			<step><para>Добавьте пользователя в систему (создав домашний каталог пользователя): <screen>
+&rootprompt;<userinput>useradd -c "Jack Baumbach" -m -g users -p m0r3pa1n jackb</userinput>
+</screen></para></step>
+
+			<step><para>Создайте каталог и установите права владения и доступа: <screen>
+&rootprompt;<userinput>mkdir /export</userinput>
+&rootprompt;<userinput>chmod u+rwx,g+rx,o+rx /export</userinput>
+&rootprompt;<userinput>chown jackb.users /export</userinput>
+</screen></para></step>
+
+			<step><para>Скопируйте все файлы, которые нужно сделать общими, в каталог <filename>/export</filename>.</para></step>
+
+			<step><para>Установите файл настроек Samba (<filename>/etc/samba/smb.conf</filename>) так, как показано в <link linkend="anon-example">Настройка сервера только-для-чтения с анонимным доступом</link>.</para></step>
+
+<example id="anon-example">
+<title>Настройка сервера только-для-чтения с анонимным доступом</title>
+<smbconfblock>
+<smbconfcomment>Глобальные параметры</smbconfcomment>
+<smbconfsection name="[global]"/>
+<smbconfoption name="workgroup">MIDEARTH</smbconfoption>
+<smbconfoption name="netbios name">HOBBIT</smbconfoption>
+<smbconfoption name="security">общий ресурс</smbconfoption>
+
+<smbconfsection name="[data]"/>
+<smbconfoption name="comment">Данные</smbconfoption>
+<smbconfoption name="path">/export</smbconfoption>
+<smbconfoption name="read only">Да</smbconfoption>
+<smbconfoption name="guest ok">Да</smbconfoption>
+</smbconfblock>
+</example>
+
+			<step><para>Проверьте конифгурацию, исполнив следу</para></step>
+
+			<step><para>Запустите Samba, используя способ, подходящий для вашей платформы. Способ, которым это можно сделать, зависит от платформы. Обратитесь к <link linkend="startingSamba">Запускаем Samba</link> для дальнейшей информации, касающейся запуска Samba.</para></step>
+
+			<step><para>Настройте в Вашем клиенте для рабочих групп MS Windows рабочую группу <emphasis>MIDEARTH</emphasis>, установите имя машины <emphasis>ROBBINS</emphasis>, перезагрузитесь и, подождав несколько (2 - 5) минут, откройте Проводник Windows. Им просмотрите Сетевое окружение. Должна быть видна машина HOBBIT. Когда Вы щелкнете по иконке этой машины, она должна открыться, отобразив общий ресурс <emphasis>data</emphasis>. После Вашего шелчка по этому общему ресурсу, он должен открыться, отобразив файлы, ранее помещенные в каталог <filename>/export</filename>.</para></step>
+		</procedure>
+
+		<para>Информация выше (глобальные параметры, следующие за #), является полным содержанием текстового файла.</para>
+
+		</sect3>
+
+		<sect3>
+		<title>Сервер документов с анонимным доступом и возможностью чтения-записи</title>
+
+		<para><indexterm><primary>анонимный</primary><secondary>сервер чтения-записи</secondary></indexterm> Мы должны рассматривать эту конфигурацию как продвижение по сравнению с предыдущим примером. Разница в том, что общий доступ сейчас осуществляется от имени пользователя jackb и его основной группы. Еще одно уточнение, которое мы можем сделать - необходимо добавить пользователя <emphasis>jackb</emphasis> в файл <filename>smbpasswd</filename>. Для этого исполните: <screen>
+&rootprompt;<userinput>smbpasswd -a jackb</userinput>
+New SMB password: <userinput>m0r3pa1n</userinput>
+Retype new SMB password: <userinput>m0r3pa1n</userinput>
+Added user jackb.
+</screen> Добавление пользователя в файл <filename>smbpasswd</filename> позволит всем файлам отображаться в окнах свойств Проводника как принадлежащим пользователю <emphasis>jackb</emphasis> вместо  <emphasis>User Unknown</emphasis> (неизвестный пользователь - прим.пер.).</para>
+
+		<para>Измененный законченный файл &smb.conf; показан в <link linkend="anon-rw"/>.</para>
+
+<example id="anon-rw">
+<title>Измененный smb.conf для чтения и записи с анонимным доступом</title>
+<smbconfblock>
+<smbconfcomment>Глобальные параметры</smbconfcomment>
+<smbconfsection name="[global]"/>
+<smbconfoption name="workgroup">MIDEARTH</smbconfoption>
+<smbconfoption name="netbios name">HOBBIT</smbconfoption>
+<smbconfoption name="security">SHARE</smbconfoption>
+
+<smbconfsection name="[data]"/>
+<smbconfoption name="comment">Данные</smbconfoption>
+<smbconfoption name="path">/export</smbconfoption>
+<smbconfoption name="force user">jackb</smbconfoption>
+<smbconfoption name="force group">users</smbconfoption>
+<smbconfoption name="read only">Нет</smbconfoption>
+<smbconfoption name="guest ok">Да</smbconfoption>
+</smbconfblock>
+</example>
+
+		</sect3>
+
+		<sect3>
+		<title>Cервер печати с анонимным доступом </title>
+
+		<para><indexterm><primary>анонимный</primary><secondary>принт-сервер</secondary></indexterm> Принт-сервер с анонимным доступом служит двум целям:</para>
+
+		<itemizedlist>
+			<listitem><para>Он позволяет печатать на все принтеры из одного места.</para></listitem>
+
+			<listitem><para>Он уменьшает объемы сетевого трафика (они велики в случае многих пользователей, пытающихся получить доступ к ограниченному числу принтеров).</para></listitem>
+		</itemizedlist>
+
+		<para>В простейших принт-серверах с анонимным доступом общепринятой практикой является установка необходимых драйверов принтера на рабочую станцию с Windows. В этом случае принт-сервер будет настроен так, чтобы просто передавать задания диспетчеру печати, а диспетчер настраивается так, чтобы передавать задания принтеру без обработки . Другими словами, диспетчеру печати нет нужды фильтровать или обрабатывать поток данных, передаваемый принтеру.</para>
+
+		<para>В этой конфигурации не нужно настраивать мастер добавления принтеров - нам не нужна автоматическая загрузка драйверов, поэтому мы запрещаем её в следующей конфигурации. Получившийся файл &smb.conf; - <link linkend="anon-print"/>.</para>
+
+<example id="anon-print">
+<title>Smb.conf для сервера печати с анонимным доступом </title>
+<smbconfblock>
+<smbconfcomment>Глобальные параметры</smbconfcomment>
+<smbconfsection name="[global]"/>
+<smbconfoption name="workgroup">MIDEARTH</smbconfoption>
+<smbconfoption name="netbios name">LUTHIEN</smbconfoption>
+<smbconfoption name="security">общий ресурс</smbconfoption>
+<smbconfoption name="printcap name">cups</smbconfoption>
+<smbconfoption name="disable spoolss">Да</smbconfoption>
+<smbconfoption name="show add printer wizard">Нет</smbconfoption>
+<smbconfoption name="printing">cups</smbconfoption>
+
+<smbconfsection name="[printers]"/>
+<smbconfoption name="comment">Все принтеры</smbconfoption>
+<smbconfoption name="path">/var/spool/samba</smbconfoption>
+<smbconfoption name="guest ok">Да</smbconfoption>
+<smbconfoption name="printable">Да</smbconfoption>
+<smbconfoption name="use client driver">Да</smbconfoption>
+<smbconfoption name="browseable">Нет</smbconfoption>
+</smbconfblock>
+</example>
+
+		<para>Конфигурация выше не идеальна. В ней не предусмотрено каких-либо функций для удобства, и она, конечно, меньше чем элегантное решение. Но она простейшая, и она печатает. Samba использует интерфейс прямой печати, обеспечиваемый CUPS. Если Samba была скомпилирована и связана с библиотеками CUPS, подсистемой печати по умолчанию будет CUPS. Если параметр printcap name равен CUPS, то Samba будет использовать вызовы библиотеки CUPS для того, чтобы напрямую работать с ней по всем функциям печати. Возможно использование внешних команд печати установкой значения<parameter>printing</parameter> равным либо SYSV, либо BSD, и, следовательно, значение параметра <parameter>printcap name</parameter> должно быть равно чему-то другому, нежели CUPS. В таком случае оно могло быть установлено равным имени любого файла, который содержит список принтеров, которые необходимо сделать доступными Windows-клиентам.</para>
+
+		<note><para>Пользователи Windows должны установить у себя локальный принтер, а после установки драйвера включить печать "на устройство". Затем данные печати "на устройство" могут быть пересланы на сетевой принтер этой машины.</para></note>
+
+		<para>Удостоверьтесь, что каталог <filename>/var/spool/samba</filename> может быть использован в соответствии с назначением. Для этого необходимо выполнить следующие шаги:</para>
+
+		<itemizedlist>
+			<listitem><para>Владельцем каталога должен быть суперпользователь (root) и его группа:<screen>
+&rootprompt;<userinput>chown root.root /var/spool/samba</userinput>
+</screen></para></listitem>
+
+			<listitem><para>На каталог необходимо установить разрешения на чтение-запись и sticky-бит, так, как показано: <screen>
+&rootprompt;<userinput>chmod a+twrx /var/spool/samba</userinput>
+</screen> Sticky-бит устанавливается для того, чтобы пользователи, не являющиеся владельцами временного файла печати, не смогли перехватить управление им. Это потенциально может привести к злоупотреблениям.</para></listitem>
+		</itemizedlist>
+
+
+		<note><para><indexterm><primary>MIME</primary><secondary>raw</secondary></indexterm><indexterm><primary>raw printing</primary></indexterm> На системах с поддержкой CUPS существует возможность передавать данные напрямую принтеру без промежуточной обработки фильтрами печати CUPS. Если выбран данный режим обработки, необходимо настроить устройство прямой печати. Так же необходимо включить соответствующий обработчик mime в файлах <filename>/etc/mime.conv</filename> и <filename>/etc/mime.types</filename>. Смотрите в <link linkend="cups-raw"/>.</para></note>
+
+		</sect3>
+
+		<sect3>
+
+		<title>Безопасный принт- и файл-сервер с возможностью чтения-записи.</title>
+
+		<para>Сейчас мы продвинемся от простой системы к серверу, который несколько более сложен.</para>
+
+		<para>Нашему новому серверу потребуется публичная область хранения данных, в которой аутентифицированные пользователи (с местной учетной записью) могут хранить файлы, так же, как и домашние каталоги. Будет только один принтер, который будет доступен к использованию для всех.</para>
+
+		<para>В этом гипотетическом окружении (для получения этих данных не предпринимались попытки шпионажа) организации необходима простая среда, которая <emphasis>достаточно безопасна</emphasis>, но не слишком сложна в использовании.</para>
+
+		<para>Пользователи здесь будут Jack Baumbach, Mary Orville, and Amed Sehkah. У каждого будет пароль (не показан в дальнейших примерах). Mary будет администратором принтера и владельцем всех файлов общего ресурса.</para>
+
+		<para>Эта конфигурация будет основана на <emphasis>безопасности уровня пользователя</emphasis>, включенной по умолчанию; также по умолчанию пароли, зашифрованные в формате, совместимом с Microsoft Windows, хранятся в файле <filename>/etc/samba/smbpasswd. &smb.conf;, smbpasswd, guest. </filename></para>
+
+
+		<procedure>
+		<title>Установка безопасного офисного сервера</title>
+			<step><para><indexterm><primary>офисный сервер</primary></indexterm> Добавьте всех пользователей в операционную систему: <screen>
+&rootprompt;<userinput>useradd -c "Jack Baumbach" -m -g users -p m0r3pa1n jackb</userinput>
+&rootprompt;<userinput>useradd -c "Mary Orville" -m -g users -p secret maryo</userinput>
+&rootprompt;<userinput>useradd -c "Amed Sehkah" -m -g users -p secret ameds</userinput>
+</screen></para></step>
+
+			<step><para>Настройте файл Samba &smb.conf; ттак, как показано в <link linkend="OfficeServer"/>.</para></step>
+
+<example id="OfficeServer">
+<title>Файл smb.conf для безопасного офисного сервера.</title>
+<smbconfblock>
+<smbconfcomment>Глобальные параметры</smbconfcomment>
+<smbconfsection name="[global]"/>
+<smbconfoption name="workgroup">MIDEARTH</smbconfoption>
+<smbconfoption name="netbios name">OLORIN</smbconfoption>
+<smbconfoption name="printcap name">cups</smbconfoption>
+<smbconfoption name="disable spoolss">Да</smbconfoption>
+<smbconfoption name="show add printer wizard">Нет</smbconfoption>
+<smbconfoption name="printing">cups</smbconfoption>
+
+<smbconfsection name="[homes]"/>
+<smbconfoption name="comment">Домашние каталоги</smbconfoption>
+<smbconfoption name="valid users">%S</smbconfoption>
+<smbconfoption name="read only">Нет</smbconfoption>
+<smbconfoption name="browseable">Нет</smbconfoption>
+
+<smbconfsection name="[public]"/>
+<smbconfoption name="comment">Данные</smbconfoption>
+<smbconfoption name="path">/export</smbconfoption>
+<smbconfoption name="force user">maryo</smbconfoption>
+<smbconfoption name="force group">users</smbconfoption>
+<smbconfoption name="read only">Нет</smbconfoption>
+
+<smbconfsection name="[printers]"/>
+<smbconfoption name="comment">Все принтеры</smbconfoption>
+<smbconfoption name="path">/var/spool/samba</smbconfoption>
+<smbconfoption name="printer admin">root, maryo</smbconfoption>
+<smbconfoption name="create mask">0600</smbconfoption>
+<smbconfoption name="guest ok">Да</smbconfoption>
+<smbconfoption name="printable">Да</smbconfoption>
+<smbconfoption name="use client driver">Да</smbconfoption>
+<smbconfoption name="browseable">Нет</smbconfoption>
+</smbconfblock>
+</example>
+
+			<step><para>Инициализируйте парольную базу новых пользователей Microsoft Windows : <screen>
+&rootprompt;<userinput>smbpasswd -a root</userinput>
+New SMB password: <userinput>bigsecret</userinput>
+Reenter smb password: <userinput>bigsecret</userinput>
+Added user root.
+
+&rootprompt;<userinput>smbpasswd -a jackb</userinput>
+New SMB password: <userinput>m0r3pa1n</userinput>
+Retype new SMB password: <userinput>m0r3pa1n</userinput>
+Added user jackb.
+
+&rootprompt;<userinput>smbpasswd -a maryo</userinput>
+New SMB password: <userinput>secret</userinput>
+Reenter smb password: <userinput>secret</userinput>
+Added user maryo.
+
+&rootprompt;<userinput>smbpasswd -a ameds</userinput>
+New SMB password: <userinput>mysecret</userinput>
+Reenter smb password: <userinput>mysecret</userinput>
+Added user ameds.
+</screen></para></step>
+
+			<step><para>Установите принтер, используя веб-интерфейс CUPS.  Удостоверьтесь, что все принтеры, которые будут общими для клиентов Microsoft Windows, настроены как устройства прямой (необработанной) печати.</para></step>
+
+			<step><para>Запустите Samba, используя интерфейс управления системой. Кроме того, это можно сделать вручную, исполнив команды: <indexterm><primary>smbd</primary></indexterm><indexterm><primary>nmbd</primary></indexterm><indexterm><primary>запуск samba</primary><secondary>smbd</secondary></indexterm><indexterm><primary>запуск samba</primary><secondary>nmbd</secondary></indexterm><screen>
+&rootprompt;<userinput> nmbd; smbd;</userinput>
+</screen> Оба приложения автоматически исполняются как демоны. Если Вы параноик в смысле контроля, могуь добавить флаг <constant>-D</constant>, запретив им запускаться в режиме демона.</para></step>
+
+			<step><para>Настройте каталог <filename>/export</filename>: <screen>
+&rootprompt;<userinput>mkdir /export</userinput>
+&rootprompt;<userinput>chown maryo.users /export</userinput>
+&rootprompt;<userinput>chmod u=rwx,g=rwx,o-rwx /export</userinput>
+</screen></para></step>
+
+			<step><para>Проверьте, что Samba запущен и работает корректно: <screen>
+&rootprompt;<userinput>smbclient -L localhost -U%</userinput>
+Domain=[MIDEARTH] OS=[UNIX] Server=[Samba-3.0.20]
+
+Sharename      Type      Comment
+---------      ----      -------
+public         Disk      Data
+IPC$           IPC       IPC Service (Samba-3.0.20)
+ADMIN$         IPC       IPC Service (Samba-3.0.20)
+hplj4          Printer   hplj4
+
+Server               Comment
+---------            -------
+OLORIN               Samba-3.0.20
+
+Workgroup            Master
+---------            -------
+MIDEARTH             OLORIN
+</screen> Следующее сообщение об ошибке означает, что Samba не работала: <screen>
+&rootprompt; smbclient -L olorin -U%
+Error connecting to 192.168.1.40 (Connection refused)
+Connection to olorin failed
+</screen></para></step>
+
+			<step><para>Подсоединитесь к OLORIN как maryo: <screen>
+&rootprompt;<userinput>smbclient //olorin/maryo -Umaryo%secret</userinput>
+OS=[UNIX] Server=[Samba-3.0.20]
+smb: \&gt; <userinput>dir</userinput>
+.                              D        0  Sat Jun 21 10:58:16 2003
+..                             D        0  Sat Jun 21 10:54:32 2003
+Documents                      D        0  Fri Apr 25 13:23:58 2003
+DOCWORK                        D        0  Sat Jun 14 15:40:34 2003
+OpenOffice.org                 D        0  Fri Apr 25 13:55:16 2003
+.bashrc                        H     1286  Fri Apr 25 13:23:58 2003
+.netscape6                    DH        0  Fri Apr 25 13:55:13 2003
+.mozilla                      DH        0  Wed Mar  5 11:50:50 2003
+.kermrc                        H      164  Fri Apr 25 13:23:58 2003
+.acrobat                      DH        0  Fri Apr 25 15:41:02 2003
+
+		55817 blocks of size 524288. 34725 blocks available
+smb: \&gt; <userinput>q</userinput>
+</screen></para></step>
+		</procedure>
+
+			<para>Сейчас Вы уже должны были понять основные идеи настройки. Честно говоря, уже время исследовать примеры и посложнее. В оставшейся части этой главы мы сократим инструкции, поскольку для этого есть предыдущие примеры.</para>
+
+		</sect3>
+
+	</sect2>
+
+	<sect2>
+	<title>Сервер-участник домена</title>
+
+	<para><indexterm><primary>Тип сервера</primary><secondary>Участник домена</secondary></indexterm> В этом случае для того, чтобы отделаться от бухгалтерии, мы предпочитаем простейшие настройки для сервера, с которыми он вообще будет работать. Итак, мы осторожны, пользователи - бухгалтера, и у них есть свои грязные нужды. Для этого отдела есть бюджет только на один сервер.</para>
+
+	<para>Сеть управляется группой внутренних информационных служб (ISG), к которой мы принадлежим. Внутренние политики типичны для организации средних размеров; подразделения HR считают, что они поддерживают ISG, потому что они все время добавляют и удаляют пользователей. Кроме того, управляющие отделами должны биться зубами и ногтями за получение базового доступа к сетевым ресурсам для своих команд. Финансисты, конечно, отдельный вопрос, однако они всегда получают то, что хотят. Так что дальнейшее является результатом исходных данных.</para>
+
+	<para>Мы используем пользователей из прошлого примера. Финансовый отдел имеет общий принтер, который могут использовать все пользователи отдела. Также есть чековый принтер, который могут использовать только лица, имеющие право печатать чеки. Главный бухгалтер хочет, чтобы доступ к принтеру был полностью ограничен, и, следовательно, расположен в охраняемом месте в ее офисе. Следовательно, это должен быть сетевой принтер.</para>
+
+	<para>Финансовый отдел использует бухгалтерское приложение, называемое  <emphasis>SpytFull</emphasis>, которое дожно запускаться с центрального сервера приложений. Это программное обеспечение лицензировано для запуска только с одного сервера, компоненты для клиентских рабочих станций отсутствуют, и оно запускается с общего ресурса, отображаемого на диск. Данные хранятся в SQL-базе под UNIX. Гуру UNIX позаботятся об этом, поэтому это не наша проблема.</para>
+
+	<para>Управляющий финансового отдела (главбух, наверное - прим. перев.) хочет иметь общую файловую систему, также как и отдельную область хранения файлов с формами для писем ("грязнограммами" - прим. перев.) Область с формами должна быть доступна только-для-чтения для всего бухгалтерского персонала, исключая главбуха. Общая файловая система должна иметь следующую структуру: одна область для всего персонала под хранение общих документов и отдельные, личные области для каждого члена команды, однако главбух будет иметь полный доступ ко всем областям. Пользователи должны иметь личный домашний ресурс для своих файлов, связанных с работой, и для материалов, не связанных с работой департамента.</para>
+	
+		<sect3>
+		<title>Пример конфигурации</title>
+		
+		<para>Сервер <emphasis>valinor</emphasis> будет сервером-членом домена компании. У финансового отдела будет только локальный сервер. Учетные записи пользователей будут на контроллере домена, так же, как профили пользователей и файлы сетевых политик.</para>
+
+		<procedure>
+			<step><para>Не добавляйте пользователей к серверу UNIX/Linux; все это будет загружаться из центрального домена.</para></step>
+
+			<step><para>Настройте &smb.conf; в соответствии с <link linkend="fast-member-server">Файл smb.conf сервера-участника домена (глобальные настройки)</link> и <link linkend="fast-memberserver-shares">Файл smb.conf сервера-участника домена (общие ресурсы и службы)</link>.</para></step>
+
+<example id="fast-member-server">
+<title>Файл smb.conf сервера-участника домена (глобальные настройки)</title>
+<smbconfblock>
+<smbconfcomment>Глобальные параметры</smbconfcomment>
+<smbconfsection name="[global]"/>
+<smbconfoption name="workgroup">MIDEARTH</smbconfoption>
+<smbconfoption name="netbios name">VALINOR</smbconfoption>
+<smbconfoption name="security">ДОМЕН</smbconfoption>
+<smbconfoption name="printcap name">cups</smbconfoption>
+<smbconfoption name="disable spoolss">Да</smbconfoption>
+<smbconfoption name="show add printer wizard">Нет</smbconfoption>
+<smbconfoption name="idmap uid">15000-20000</smbconfoption>
+<smbconfoption name="idmap gid">15000-20000</smbconfoption>
+<smbconfoption name="winbind use default domain">Да</smbconfoption>
+<smbconfoption name="printing">cups</smbconfoption>
+</smbconfblock>
+</example>
+
+<example id="fast-memberserver-shares">
+<title>Файл smb.conf сервера-участника домена (Общие ресурсы и службы)</title>
+<smbconfblock>
+<smbconfsection name="[homes]"/>
+<smbconfoption name="comment">Домашние каталоги</smbconfoption>
+<smbconfoption name="valid users">%S</smbconfoption>
+<smbconfoption name="read only">Нет</smbconfoption>
+<smbconfoption name="browseable">Нет</smbconfoption>
+
+<smbconfsection name="[spytfull]"/>
+<smbconfoption name="comment">Только для бухгалтерских применений</smbconfoption>
+<smbconfoption name="path">/export/spytfull</smbconfoption>
+<smbconfoption name="valid users">@Accounts</smbconfoption>
+<smbconfoption name="admin users">maryo</smbconfoption>
+<smbconfoption name="read only">Да</smbconfoption>
+
+<smbconfsection name="[public]"/>
+<smbconfoption name="comment">Данные</smbconfoption>
+<smbconfoption name="path">/export/public</smbconfoption>
+<smbconfoption name="read only">Нет</smbconfoption>
+
+<smbconfsection name="[printers]"/>
+<smbconfoption name="comment">Все принтеры</smbconfoption>
+<smbconfoption name="path">/var/spool/samba</smbconfoption>
+<smbconfoption name="printer admin">root, maryo</smbconfoption>
+<smbconfoption name="create mask">0600</smbconfoption>
+<smbconfoption name="guest ok">Да</smbconfoption>
+<smbconfoption name="printable">Да</smbconfoption>
+<smbconfoption name="use client driver">Да</smbconfoption>
+<smbconfoption name="browseable">Нет</smbconfoption>
+</smbconfblock>
+</example>
+
+			<step><para><indexterm><primary>net</primary><secondary>rpc</secondary></indexterm> Присоединитесь к домену. Заметка: Не запускайте Samba до тех пор, пока не сделаете этого! <screen>
+&rootprompt;<userinput>net rpc join -Uroot%'bigsecret'</userinput>
+Joined domain MIDEARTH.
+</screen></para></step>
+
+			<step><para>Вам необходимо быть абсолютно уверенными в том, что Вы выключили (запретили) демона <command>nscd</command> на любой системе, где планируется запуск <command>winbind</command>.</para></step>
+
+			<step><para>Запустите Samba, следуя обычными методами для Вашей платформы. Если Вы хотите сделать это вручную, исполните от пользователя root:<indexterm><primary>smbd</primary></indexterm><indexterm><primary>nmbd</primary></indexterm><indexterm><primary>winbindd</primary></indexterm><indexterm><primary>starting samba</primary><secondary>smbd</secondary></indexterm><indexterm><primary>starting samba</primary><secondary>nmbd</secondary></indexterm><indexterm><primary>starting samba</primary><secondary>winbindd</secondary></indexterm><screen>
+&rootprompt;<userinput>nmbd; smbd; winbindd;</userinput>
+</screen></para></step>
+
+			<step><para>Настройте управляющий файл переключателя службы имен (NSS) так, чтобы имена пользователей и групп проверялись через winbind. Отредактируйте следующие строки в <filename>/etc/nsswitch.conf</filename>: <programlisting>
+passwd: files winbind
+group:  files winbind
+hosts:  files dns winbind
+</programlisting></para></step>
+
+			<step><para>Установка пароля для использования <command>wbinfo</command>: <screen>
+&rootprompt;<userinput>wbinfo --set-auth-user=root%'bigsecret'</userinput>
+</screen></para></step>
+
+			<step><para>Удостоверьтесь, что участие в домене пользователя и группы может быть корректно проверено, исполнив следующее: <screen>
+&rootprompt;<userinput>wbinfo -u</userinput>
+MIDEARTH\maryo
+MIDEARTH\jackb
+MIDEARTH\ameds
+...
+MIDEARTH\root
+
+&rootprompt;<userinput>wbinfo -g</userinput>
+MIDEARTH\Domain Users
+MIDEARTH\Domain Admins
+MIDEARTH\Domain Guests
+...
+MIDEARTH\Accounts
+</screen></para></step>
+
+			<step><para>Проверьте, что команда <command>winbind</command> работает. Следующее демонстрирует правильное разрешение имен пользователей через системную утилиту <command>getent</command>: <screen>
+&rootprompt;<userinput>getent passwd maryo</userinput>
+maryo:x:15000:15003:Mary Orville:/home/MIDEARTH/maryo:/bin/false
+</screen></para></step>
+
+			<step><para>Последний тест, показывающий, что все под контролем, для уверенности: <screen>
+&rootprompt;<userinput>touch /export/a_file</userinput>
+&rootprompt;<userinput>chown maryo /export/a_file</userinput>
+&rootprompt;<userinput>ls -al /export/a_file</userinput>
+...
+-rw-r--r--    1 maryo    users       11234 Jun 21 15:32 a_file
+...
+
+&rootprompt;<userinput>rm /export/a_file</userinput>
+</screen></para></step>
+
+			<step><para>Настройка в основном завершена, так что сейчассамое время натсроить структуру каталогов для этого сайта: <screen>
+&rootprompt;<userinput>mkdir -p /export/{spytfull,public}</userinput>
+&rootprompt;<userinput>chmod ug=rwxS,o=x /export/{spytfull,public}</userinput>
+&rootprompt;<userinput>chown maryo.Accounts /export/{spytfull,public}</userinput>
+</screen></para></step>
+		</procedure>
+
+		</sect3>
+
+	</sect2>
+
+	<sect2>
+	<title>Контроллер домена</title>
+
+
+	<para><indexterm><primary>Тип сервера</primary><secondary>Контроллер домена</secondary></indexterm> В оставшейся части главы основной упор сделан на настройке управления доменом. Далее следуют два примера - две стратегии выполнения. Запомните, наша цель - создать простое, но работающее решение. Оставшаяся часть книги поможет выявить возможности большей функциональности и - соответственно - сложности.</para>
+
+	<para>Контроллера домена может быть получена простыми настройками с использованием парольной базы tdbsam. Этот тип конфигурации хорош для небольших офисов, но имеет ограниченную масштабируемость (не может реплицироваться), и по мере роста размера и сложности домена производительность подвержена падению.</para>
+
+	<para>Использование tdbsam в наилучшем виде ограничено площадками, которым не нужно больше, чем первичный контроллер домена (PDC). По мере роста домена необходимость в дополнительном его контроллере представляется все более ясной. Не пытайтесь выделять мало ресурсов сетевому окружению Microsoft Windows; контроллеры домена обеспечивают важные службы аутентификации.Далее следуют симптомы нехватки ресурсов в сетевом окружении домена:</para>
+
+	<itemizedlist>	
+		<listitem><para>Вход в домен случайным образом завершается неудачей.</para></listitem>
+
+		<listitem><para>Доступ к файлам на участнике домена случайным образом завершается неудачей с выдачей сообщения об отказе в доступе.</para></listitem>
+	</itemizedlist>
+
+	<para>Лучший выбор парольной базы управления доменом в смысле масштабируемости - использование Microsoft Active Directory или парольной базы LDAP. Samba-3 обеспечивает обе возможности как участник домена. В роли PDC Samba-3 не может обеспечить полную альтернативу функциональности, обеспечиваемой Active Directory. Тем не менее, Samba-3 может обеспечить масштабируемое решение PDC/BDC с парольной базой LDAP.</para>
+
+	<para>Парольная база tdbsam не обеспечивает возможности репликации содержимого базы данных, исключая внешние средства (т.е. в Samba-3 не существует внутреннего протокола для репликации базы данных диспетчера учетных записей безопасности [SAM]).</para>
+
+	<note><para>Если Вам необходим более чем один контроллер домена, не используйте парольную базу tdbsam.</para></note>
+
+		<sect3>
+		<title>Пример: офис разработок</title>
+
+		<para>Сетевой сервер офиса разработок, который мы представляем здесь, разработан для демонтсрации использования парольной базы tdbsam.</para>
+
+		<procedure>
+			<step><para>Работающая конфигурация PDC с использованием парольной базы tdbsam находится в <link linkend="fast-engoffice-global">Файл smb.conf для инженерного офиса (глобальные настройки)</link> вместе с  <link linkend="fast-engoffice-shares">Файл smb.conf для  (shares and services)</link>: <indexterm><primary>pdbedit</primary></indexterm></para></step>
+
+<example id="fast-engoffice-global">
+<title>Файл smb.conf инженерного офиса (глобальные настройки)</title>
+<smbconfblock>
+<smbconfsection name="[global]"/>
+<smbconfoption name="workgroup">MIDEARTH</smbconfoption>
+<smbconfoption name="netbios name">FRODO</smbconfoption>
+<smbconfoption name="passdb backend">tdbsam</smbconfoption>
+<smbconfoption name="printcap name">cups</smbconfoption>
+<smbconfoption name="add user script">/usr/sbin/useradd -m %u</smbconfoption>
+<smbconfoption name="delete user script">/usr/sbin/userdel -r %u</smbconfoption>
+<smbconfoption name="add group script">/usr/sbin/groupadd %g</smbconfoption>
+<smbconfoption name="delete group script">/usr/sbin/groupdel %g</smbconfoption>
+<smbconfoption name="add user to group script">/usr/sbin/groupmod -A %u %g</smbconfoption>
+<smbconfoption name="delete user from group script">/usr/sbin/groupmod -R %u %g</smbconfoption>
+<smbconfoption name="add machine script">/usr/sbin/useradd -s /bin/false -d /var/lib/nobody %u</smbconfoption>
+<smbconfcomment>Заметка: Нижеследующее указывает сценарий входа по умолчанию.</smbconfcomment>
+<smbconfcomment>Индивидуальные сценарии входа пользователей могут быть установлены в учетной записи пользователя с помощью pdbedit.</smbconfcomment>
+<smbconfoption name="logon script">scripts\logon.bat</smbconfoption>
+<smbconfcomment>Это устанавливает путь к профилю по умолчанию. Индивидуальные пути пользователей могут быть установлены с помощью pdbedit.</smbconfcomment>
+<smbconfoption name="logon path">\\%L\Profiles\%U</smbconfoption>
+<smbconfoption name="logon drive">H:</smbconfoption>
+<smbconfoption name="logon home">\\%L\%U</smbconfoption>
+<smbconfoption name="domain logons">Да</smbconfoption>
+<smbconfoption name="os level">35</smbconfoption>
+<smbconfoption name="preferred master">Да</smbconfoption>
+<smbconfoption name="domain master">Да</smbconfoption>
+<smbconfoption name="idmap uid">15000-20000</smbconfoption>
+<smbconfoption name="idmap gid">15000-20000</smbconfoption>
+<smbconfoption name="printing">cups</smbconfoption>
+</smbconfblock>
+</example>
+
+<example id="fast-engoffice-shares">
+<title>Файл smb.conf инженерного офиса (общие ресурсы и службы)</title>
+<smbconfblock>
+<smbconfsection name="[homes]"/>
+<smbconfoption name="comment">Домашние каталоги</smbconfoption>
+<smbconfoption name="valid users">%S</smbconfoption>
+<smbconfoption name="read only">Нет</smbconfoption>
+<smbconfoption name="browseable">Нет</smbconfoption>
+
+<smbconfcomment>Автоматический общий ресурс (делает принтеры доступными через CUPS)</smbconfcomment>
+<smbconfsection name="[printers]"/>
+<smbconfoption name="comment">Все принтеры</smbconfoption>
+<smbconfoption name="path">/var/spool/samba</smbconfoption>
+<smbconfoption name="printer admin">root, maryo</smbconfoption>
+<smbconfoption name="create mask">0600</smbconfoption>
+<smbconfoption name="guest ok">Да</smbconfoption>
+<smbconfoption name="printable">Да</smbconfoption>
+<smbconfoption name="browseable">Нет</smbconfoption>
+
+<smbconfsection name="[print$]"/>
+<smbconfoption name="comment">Ресурс с драйверами принтера</smbconfoption>
+<smbconfoption name="path">/var/lib/samba/drivers</smbconfoption>
+<smbconfoption name="write list">maryo, root</smbconfoption>
+<smbconfoption name="printer admin">maryo, root</smbconfoption>
+
+<smbconfcomment>Требуется для поддержки входа в домен</smbconfcomment>
+<smbconfsection name="[netlogon]"/>
+<smbconfoption name="comment">Служба сетевого входа</smbconfoption>
+<smbconfoption name="path">/var/lib/samba/netlogon</smbconfoption>
+<smbconfoption name="admin users">root, maryo</smbconfoption>
+<smbconfoption name="guest ok">Да</smbconfoption>
+<smbconfoption name="browseable">Нет</smbconfoption>
+
+<smbconfcomment>Для того, чтобы работали профили, создайте каталог пользователя в нужном месте</smbconfcomment>
+<smbconfcomment>показано, например, mkdir -p /var/lib/samba/profiles/maryo</smbconfcomment>
+<smbconfsection name="[Profiles]"/>
+<smbconfoption name="comment">Разделяемый ресурс для перемещаемых профилей</smbconfoption>
+<smbconfoption name="path">/var/lib/samba/profiles</smbconfoption>
+<smbconfoption name="read only">Нет</smbconfoption>
+<smbconfoption name="profile acls">Да</smbconfoption>
+
+<smbconfcomment>Другие общие ресурсы/принтеры последуют ниже.</smbconfcomment>
+</smbconfblock>
+</example>
+
+			<step><para>Создайте необходимые учетные записи Unix, используя соответствующую утилиту операционной системы: <screen>
+&rootprompt;<userinput>groupadd ntadmins</userinput>
+&rootprompt;<userinput>groupadd designers</userinput>
+&rootprompt;<userinput>groupadd engineers</userinput>
+&rootprompt;<userinput>groupadd qateam</userinput>
+</screen></para></step>
+
+			<step><para>Создайте пользовательские учетные записи в системе, используя подходящую утилиту операционной системы. Удостоверьтесь, что домашние каталоги пользователей также созданы. Добавьте пользователей в групппы так, как необходимо для контроля доступа к файлам, каталогам, принтерам и как необходимо для использования среды Samba.</para></step>
+
+
+			<step><para><indexterm><primary>net</primary><secondary>groupmap</secondary></indexterm><indexterm><primary>initGroups.sh</primary></indexterm> Назначьте соответствие между группами UNIX и NT,  исполнив этот сценарий: (Вы могли бы назвать сценарий <filename>initGroups.sh</filename>): <screen>
+#!/bin/bash
+#### Сохраните это в качестве сценария оболчки для повторного использования
+			
+# Сначала назначаем well known группы (хорошо известные)
+net groupmap add ntgroup="Domain Admins" unixgroup=ntadmins rid=512 type=d
+net groupmap add ntgroup="Domain Users"  unixgroup=users rid=513 type=
+net groupmap add ntgroup="Domain Guests" unixgroup=nobody rid=514 type=d
+
+# А теперь наши добавленные группы домена
+net groupmap add ntgroup="Designers" unixgroup=designers type=d
+net groupmap add ntgroup="Engineers" unixgroup=engineers type=d
+net groupmap add ntgroup="QA Team"   unixgroup=qateam    type=d
+</screen></para></step>
+
+			<step><para>Создайте каталог <filename>scripts</filename> для использования в общем ресурсе <smbconfsection name="[NETLOGON]"/>: <screen>
+&rootprompt;<userinput>mkdir -p /var/lib/samba/netlogon/scripts</userinput>
+</screen> Поместите сценарии входа, которые будут использоваться (в виде bat или cmd-сценариев) в этот каталог.</para></step>
+		</procedure>
+
+		<para>Конфигурация выше обеспечивает рабочую систему PDC, к которой по мере необходимости добавляются файловые общие ресурсы и принтеры.</para>
+
+		</sect3>
+
+		<sect3>
+		<title>Большая организация</title>
+
+		<para>В этой части мы наконец-то доберемся до краткого обзора настройки Samba 3, которая использует парольную базу LDAP. Главные причины этого выбора - возможность иметь как основной, так и резервный (BDC) контроллеры домена, так же, как и обеспечить большую масштабируемость для нужд распределенной сети.</para>
+
+			<sect4>
+			<title>Первичный контроллер домена</title>
+
+			<para>Это пример минимальной конфигурации для запуска PDC под Samba-3, используя парольную базу LDAP. Предполагается, что операционная система была настроена правильно.</para>
+
+			<para>Скрипты Idealx (или эквивалентные) необходимы для управления основанными на LDAP POSIX- и/или SambaSamAccounts. Скрипты  Idealx могут быть скачаны с сайта <ulink url="http://www.idealx.org"> Idealx</ulink>. Их также можно найти в тарболе Samba. Большая часть дистрибутивов Linux, похоже, устанавливают скрипты Idealx в каталог <filename>/usr/share/doc/packages/sambaXXXXXX/examples/LDAP/smbldap-tools</filename>. Скрипты Idealx версии <constant>smbldap-tools-0.9.1</constant> достоверно работают хорошо.</para>
+
+			<procedure>
+				<step><para>Получите из исходников Samba <filename>~/examples/LDAP/samba.schema</filename> и скопируйте его в каталог <filename>/etc/openldap/schema/</filename>.</para></step>
+
+				<step><para>Установиите сервер LDAP. Этот пример справедлив для OpenLDAP 2.1.x. Вот файл <filename>/etc/openldap/slapd.conf</filename>. <indexterm><primary>/etc/openldap/slapd.conf</primary></indexterm><title>Примерный файл slapd.conf</title><screen>
+# Note commented out lines have been removed
+include         /etc/openldap/schema/core.schema
+include         /etc/openldap/schema/cosine.schema
+include         /etc/openldap/schema/inetorgperson.schema
+include         /etc/openldap/schema/nis.schema
+include         /etc/openldap/schema/samba.schema
+
+pidfile         /var/run/slapd/slapd.pid
+argsfile        /var/run/slapd/slapd.args
+
+database        bdb
+suffix          "dc=quenya,dc=org"
+rootdn          "cn=Manager,dc=quenya,dc=org"
+rootpw          {SSHA}06qDkonA8hk6W6SSnRzWj0/pBcU3m0/P
+# The password for the above is 'nastyon3'
+
+directory     /var/lib/ldap
+
+index   objectClass     eq
+index cn                      pres,sub,eq
+index sn                      pres,sub,eq
+index uid                     pres,sub,eq
+index displayName             pres,sub,eq
+index uidNumber               eq
+index gidNumber               eq
+index memberUid               eq
+index   sambaSID              eq
+index   sambaPrimaryGroupSID  eq
+index   sambaDomainName       eq
+index   default               sub
+</screen></para></step>
+
+				<step><para>Создайте следующий файл <filename>initdb.ldif</filename>: <indexterm><primary>initdb.ldif</primary></indexterm><programlisting>
+# Организация для демонстрации SambaXP
+dn: dc=quenya,dc=org
+objectclass: dcObject
+objectclass: organization
+dc: quenya
+o: SambaXP Demo
+description: Демо-дерево LDAP SambaXP
+
+# Роль в организации для управления каталогом
+dn: cn=Manager,dc=quenya,dc=org
+objectclass: organizationalRole
+cn: Manager
+description: Directory Manager
+
+# Устанавливаем контейнер для людей
+dn: ou=People, dc=quenya, dc=org
+objectclass: top
+objectclass: organizationalUnit
+ou: People
+
+# Устанавливаем роль администратора для People OU
+dn: cn=admin, ou=People, dc=quenya, dc=org
+cn: admin
+objectclass: top
+objectclass: organizationalRole
+objectclass: simpleSecurityObject
+userPassword: {SSHA}0jBHgQ1vp4EDX2rEMMfIudvRMJoGwjVb
+# пароль, указанный выше -  'mordonL8'
+</programlisting></para></step>
+
+				<step><para>Загрузите начальные данные, приведенные выше, в базу данных LDAP: <screen>
+&rootprompt;<userinput>slapadd -v -l initdb.ldif</userinput>
+</screen></para></step>
+
+				<step><para>Запустите сервер LDAP, используя утилиту или способ, подходящий для платформы, на которой он установлен.</para></step>
+
+				<step><para>Установите скрипты Idealx в каталог <filename>/usr/local/sbin</filename>, затем настройте файл smbldap_conf.pm в соответствии с конфигурацией Вашей системы.</para></step>
+
+				<step><para>Файл &smb.conf;, который приводит в действие эту парольную базу, можно найти в примере <link linkend="fast-ldap">smb.conf для PDC с парольной базой LDAP</link>. Добавьте дополнительные строфы по необходимости.</para></step>
+
+<example id="fast-ldap">
+<title>smb.conf для PDC с парольной базой LDAP</title>
+<smbconfblock>
+<smbconfcomment>Глобальные параметры</smbconfcomment>
+<smbconfsection name="[global]"/>
+<smbconfoption name="workgroup">MIDEARTH</smbconfoption>
+<smbconfoption name="netbios name">FRODO</smbconfoption>
+<smbconfoption name="passdb backend">ldapsam:ldap://localhost</smbconfoption>
+<smbconfoption name="username map">/etc/samba/smbusers</smbconfoption>
+<smbconfoption name="printcap name">cups</smbconfoption>
+<smbconfoption name="add user script">/usr/local/sbin/smbldap-useradd -m '%u'</smbconfoption>
+<smbconfoption name="delete user script">/usr/local/sbin/smbldap-userdel %u</smbconfoption>
+<smbconfoption name="add group script">/usr/local/sbin/smbldap-groupadd -p '%g'</smbconfoption>
+<smbconfoption name="delete group script">/usr/local/sbin/smbldap-groupdel '%g'</smbconfoption>
+<smbconfoption name="add user to group script">/usr/local/sbin/smbldap-groupmod -m '%u' '%g'</smbconfoption>
+<smbconfoption name="delete user from group script">/usr/local/sbin/smbldap-groupmod -x '%u' '%g'</smbconfoption>
+<smbconfoption name="set primary group script">/usr/local/sbin/smbldap-usermod -g '%g' '%u'</smbconfoption>
+<smbconfoption name="add machine script">/usr/local/sbin/smbldap-useradd -w '%u'</smbconfoption>
+<smbconfoption name="logon script">scripts\logon.bat</smbconfoption>
+<smbconfoption name="logon path">\\%L\Profiles\%U</smbconfoption>
+<smbconfoption name="logon drive">H:</smbconfoption>
+<smbconfoption name="logon home">\\%L\%U</smbconfoption>
+<smbconfoption name="domain logons">Да</smbconfoption>
+<smbconfoption name="os level">35</smbconfoption>
+<smbconfoption name="preferred master">Да</smbconfoption>
+<smbconfoption name="domain master">Да</smbconfoption>
+<smbconfoption name="ldap suffix">dc=quenya,dc=org</smbconfoption>
+<smbconfoption name="ldap machine suffix">ou=People</smbconfoption>
+<smbconfoption name="ldap user suffix">ou=People</smbconfoption>
+<smbconfoption name="ldap group suffix">ou=People</smbconfoption>
+<smbconfoption name="ldap idmap suffix">ou=People</smbconfoption>
+<smbconfoption name="ldap admin dn">cn=Manager</smbconfoption>
+<smbconfoption name="ldap ssl">нет</smbconfoption>
+<smbconfoption name="ldap passwd sync">Да</smbconfoption>
+<smbconfoption name="idmap uid">15000-20000</smbconfoption>
+<smbconfoption name="idmap gid">15000-20000</smbconfoption>
+<smbconfoption name="printing">cups</smbconfoption>
+</smbconfblock>
+</example>
+
+				<step><para>Добавьте пароль LDAP к файлу <filename>secrets.tdb</filename>, для того, чтобы Samba мог обновлять базу данных LDAP:<screen>
+&rootprompt;<userinput>smbpasswd -w mordonL8</userinput>
+</screen></para></step>
+
+				<step><para>При необходимости добавьте пользователей и группы. Пользователи и группы, добавленные с использованием инструментария Samba, будут автоматически добавлены в каталог LDAP и операционную систему, как и предусматривалось.</para></step>
+
+			</procedure>
+
+			</sect4>
+
+			<sect4>
+			<title>Резервный контроллер домена</title>
+
+			<para><link linkend="fast-bdc"/> показывает пример настройки BDC. Заметьте, что файл &smb.conf; не ссылается на скриптыsmbldap-tools &smbmdash; они не требуются на BDC. Добавьте дополнительные строфы для общих ресурсов и принтеров по необходимости.</para>
+
+			<procedure>
+				<step><para>Решите, следует ли BDC иметь свой собственный LDAP-сервер или нет. Если BDC должен быть сервером LDAP, измените нижеследующий &smb.conf; как указано. Настройки по умолчанию в <link linkend="fast-bdc">smb.conf BDC с удаленным LDAP</link> использует центральный сервер LDAP.</para></step>
+
+<example id="fast-bdc">
+<title>smb.conf для BDC с удаленной парольной базой LDAP  </title>
+<smbconfblock>
+<smbconfcomment>Глобальные параметры</smbconfcomment>
+<smbconfsection name="[global]"/>
+<smbconfoption name="workgroup">MIDEARTH</smbconfoption>
+<smbconfoption name="netbios name">GANDALF</smbconfoption>
+<smbconfoption name="passdb backend">ldapsam:ldap://frodo.quenya.org</smbconfoption>
+<smbconfoption name="username map">/etc/samba/smbusers</smbconfoption>
+<smbconfoption name="printcap name">cups</smbconfoption>
+<smbconfoption name="logon script">scripts\logon.bat</smbconfoption>
+<smbconfoption name="logon path">\\%L\Profiles\%U</smbconfoption>
+<smbconfoption name="logon drive">H:</smbconfoption>
+<smbconfoption name="logon home">\\%L\%U</smbconfoption>
+<smbconfoption name="domain logons">Да</smbconfoption>
+<smbconfoption name="os level">33</smbconfoption>
+<smbconfoption name="preferred master">Да</smbconfoption>
+<smbconfoption name="domain master">Нет</smbconfoption>
+<smbconfoption name="ldap suffix">dc=quenya,dc=org</smbconfoption>
+<smbconfoption name="ldap machine suffix">ou=People</smbconfoption>
+<smbconfoption name="ldap user suffix">ou=People</smbconfoption>
+<smbconfoption name="ldap group suffix">ou=People</smbconfoption>
+<smbconfoption name="ldap idmap suffix">ou=People</smbconfoption>
+<smbconfoption name="ldap admin dn">cn=Manager</smbconfoption>
+<smbconfoption name="ldap ssl">нет</smbconfoption>
+<smbconfoption name="ldap passwd sync">Да</smbconfoption>
+<smbconfoption name="idmap uid">15000-20000</smbconfoption>
+<smbconfoption name="idmap gid">15000-20000</smbconfoption>
+<smbconfoption name="printing">cups</smbconfoption>
+</smbconfblock>
+</example>
+
+				<step><para>Настройте каталоги NETLOGON и PROFILES, как для PDC в <link linkend="fast-bdc"/>.</para></step>
+			</procedure>
+
+			</sect4>
+
+		</sect3>
+
+	</sect2>
+
+</sect1>
+
+</chapter>

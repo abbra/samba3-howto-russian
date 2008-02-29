@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE chapter PUBLIC "-//Samba-Team//DTD DocBook V4.2-Based Variant V1.0//EN" "http://www.samba.org/samba/DTD/samba-doc">
+<chapter id="install">
+<chapterinfo>
+	&author.tridge;
+	&author.jelmer;
+	&author.jht;
+	&author.kauer;
+	&author.danshearer;
+	<!-- Isn't some of this written by others as well? -->
+
+</chapterinfo>
+
+<title>Как установить и протестировать SAMBA</title>
+
+<sect1>
+	<title>Получение и установка Samba</title>
+
+	<para><indexterm><primary>пакеты</primary></indexterm> Бинарные пакеты Samba включены практически в любой дистрибутив Linux или UNIX. Также некоторые пакеты доступны на <ulink url="http://samba.org/">домашней странице Samba</ulink>. Обратитесь к руководству по своей операционной системе за дополнительной информацией по установке пакетов для Вашей операционной системы.</para>
+
+	<para><indexterm><primary>компиляция</primary></indexterm> Если Вам необходимо скомпилировать Samba из исходных кодов, просмотрите <link linkend="compiling">Как компилировать Samba</link>.</para>
+
+</sect1>
+
+<sect1>
+	<title>Настраиваем Samba (smb.conf)</title>
+
+	<para><indexterm><primary>/etc/samba/smb.conf</primary></indexterm><indexterm><primary>SWAT</primary></indexterm> Настройки Samba хранятся в файле &smb.conf; file, который обычно располагается здесь: <filename>/etc/samba/smb.conf</filename> или здесь: <filename>/usr/local/samba/lib/smb.conf</filename>. Вы можете либо отредактировать этот файл самостоятельно, либо с помощью одного из многих существующих GUI-инструментов, таких, как веб-интерфейс SWAT, который поставляется с Samba.</para>
+
+	<sect2>
+	<title>Синтаксис файла настроек</title>
+
+	<para><indexterm><primary>наименование секции</primary></indexterm> Файл &smb.conf; использует тот же синтаксис, что и различные <filename>.ini</filename>-файлы в Windows 3.1: каждый файл состоит из разных секций, которые начинаются именем секции в скобках (<literal>[]</literal>) с новой строки. Каждая секция состит из одной или более пар ключ/значение, разделенных знаком равенства (<literal>=</literal>). Этот файл - обычный текстовый, так что Вы можете открыть его и редактировать любимым текстовым редактором.</para>
+
+	<para><indexterm><primary>meta-service</primary></indexterm><indexterm><primary>печать</primary><secondary>очередь</secondary></indexterm><indexterm><primary>общий ресурс</primary></indexterm><indexterm><primary>спулер.</primary></indexterm><indexterm><primary>печать</primary><secondary>спулер</secondary></indexterm><indexterm><primary>спулера</primary><secondary>каталог</secondary></indexterm> Каждая секция в файле &smb.conf; представляет собой либо общий ресурс, либо мета-сервис сервера Samba. Секция <literal>[global]</literal> - особенная, так как она содержит настройки, которые применяются  к серверу Samba в целом. Samba поддерживает несколько мета-сервисов, каждый из которых служит своей цели. Например, общий ресурс <literal>[homes]</literal> - мета-сервис, который позволяет Samba предоставить каждому пользователю персональный домашний ресурс. Общий ресурс <literal>[printers]</literal> - мета-сервис, обеспечивающий поддержку печати, и указывающий на промежуточный каталог спулера, в который задания печати получаются от Windows-клиентов перед направлением спулеру UNIX/Linux</para>
+
+	<para><indexterm><primary>принтеры</primary></indexterm><indexterm><primary>мета-сервис</primary></indexterm><indexterm><primary>printcap</primary></indexterm><indexterm><primary>lpstat</primary></indexterm><indexterm><primary>CUPS API</primary></indexterm><indexterm><primary>просматриваемый</primary></indexterm>Мета-сервис <literal>printers</literal> работает так, что  каждый принтер, который либо указан в файле <literal>printcap</literal> через команду <command>lpstat</command>, либо через UPS API, будет опубликован как разделяемая очередь печати. Секция <literal>printers</literal> в файле &smb.conf; может быть настроена как не просматриваемая. Если она настроена как просматриваемая, то она будет видима как общий ресурс. Таким образом, не имеет значения, что этот мета-сервис отвечает только за доступность принтеров системы UNIX в виде очередей печати Windows. Если указан параметр <literal>comment</literal>, его значение будет показано как часть имени принтера при просмотре Windows Explorer в виде списка.</para>
+
+	<para><indexterm><primary>stanza</primary></indexterm> Каждая секция файла &smb.conf;, которая описывает общий ресурс или мета-сервис, называется строфа. Строфа <literal>global</literal> описывает натсройки, которые действуют на все другие строфы в файле  &smb.conf;. Параметры настройки документированы &smb.conf; в страницах руководства (man). Некоторые параметры могуь использоваться только в строфе <literal>global</literal>, некоторые только в строфах общих ресурсов или мета-сервисов, а некоторые могут использоваться глобально или как раз в строфах мета-сервисов или общих ресурсов.</para>
+
+	<para><indexterm><primary>минимальные</primary><secondary>настройки</secondary></indexterm><link linkend="smbconfminimal">Минимальный  smb.conf</link> содержит минимальный &smb.conf;. <indexterm><primary>минимальные настройки</primary></indexterm></para>
+
+	<example id="smbconfminimal">
+		<title>Минимальный smb.conf</title>
+		<smbconfblock>
+
+		<smbconfsection name="[global]"/>
+		<smbconfoption name="workgroup">РАБОЧАЯ_ГРУППА</smbconfoption>
+		<smbconfoption name="netbios name">МОЕ_ИМЯ</smbconfoption>
+		<smbconfsection name="[share1]"/>
+		<smbconfoption name="path">/tmp</smbconfoption>
+
+		<smbconfsection name="[share2]"/>
+		<smbconfoption name="path">/моя_общая_папка</smbconfoption>
+		<smbconfoption name="comment">Некоторые случайные файлы</smbconfoption>
+	</smbconfblock>
+	</example>
+
+</sect2>
+
+<sect2 id="tdbdocs">
+	<title>Информация по файлам баз данных TDB</title>
+
+	<para>Эта секция содержит краткие описания баз данных, используемых Samba-3.</para>
+
+	<para><indexterm><primary>расположения файлов .tdb</primary></indexterm> Каталог, в котором Samba хранит tdb-файлы, определяется директивами при компиляции. Samba-3 хранит tdb-файлы в двух местах. Лучший способ определить эти места - исполнить следующую команду: <screen>
+&rootprompt; smbd -b | grep PRIVATE_DIR
+   PRIVATE_DIR: /etc/samba/private
+</screen> Это значит, что секретные файлы tdb хранятся в каталоге <filename>/etc/samba/private</filename>. Samba-3 также использует несколько tdb-файлов, которые содержат более обыденные данные. Расположение этих файлов можно выяснить так: <screen>
+&rootprompt; smbd -b | grep LOCKDIR
+   LOCKDIR: /var/lib/samba
+</screen> Следовательно, остальные управляющие файлы будут в данном примере храниться в каталоге <filename>/var/lib/samba</filename>.</para>
+
+	<para><indexterm><primary>описания tdb-файлов</primary></indexterm> Постоянные tdb-файлы описаны в <link linkend="tdbpermfiledesc">Таблице описаний постоянных файлов TDB</link>. Все постоянные tdb-файлы необходимо резервировать на регулярной основе. Используйте утилиту <command>tdbbackup</command> для резервирования tdb-файлов. Все постоянные tdb-файлы должны сохраняться во время миграций, обновлений и апгрейдов машины.</para>
+
+	<para>Временные tdb-файлы не надо резервировать или сохранять во время миграций, обновлений и апгрейдов машины. Временные tdb-файлы описаны в <link linkend="tdbtempfiledesc"> Описаниях временных файлов TDB</link>.</para>
+
+        <table frame="all" id="tdbpermfiledesc"><title>Описания файлов TDB длительного хранения</title>
+        <tgroup cols="2">
+			<colspec align="left"/>
+			<colspec align="justify" colwidth="1*"/>
+			<colspec align="left"/>
+                <thead>
+                <row>
+                        <entry align="left">Имя</entry>
+                        <entry align="justify">ОПИСАНИЕ</entry>
+                </row>
+                </thead>
+                <tbody>
+		<row>
+			<entry>account_policy</entry>
+			<entry><para>Установки учетной записи Samba/NT, включая на стройки срока действия пароля.</para></entry>
+		</row>
+		<row>
+			<entry>group_mapping</entry>
+			<entry><para>Таблица соответствия групп/SID Windows  группам UNIX.</para></entry>
+		</row>
+		<row>
+			<entry>ntdrivers</entry>
+			<entry><para>Хранит информацию об установленных драйверах для каждого принтера.</para></entry>
+		</row>
+		<row>
+			<entry>ntforms</entry>
+			<entry><para>Хранит информацию об имеющихся видах бумаги для каждого принтера.</para></entry>
+		</row>
+		<row>
+			<entry>ntprinters</entry>
+			<entry><para>Хранит информацию о настройках печати для каждого принтера.</para></entry>
+		</row>
+		<row>
+			<entry>passdb</entry>
+			<entry><para>Существует только при использовании tdbsam. Этот файл хранит информацию SambaSAMAccount. Заметьте: для этого файла необходимо, чтобы информация об пользовательских учётных записях POSIX была доступна из файла /etc/passwd, либо из другого системного источника.</para></entry>
+		</row>
+		<row>
+			<entry>registry</entry>
+			<entry><para>База данных Samba, предназначенная только для чтения, и хранящая скелет реестра Windows, который обеспечивает поддержку для экспорта различных таблиц баз данных через winreg RPCs (вызовы удаленных процедур).</para></entry>
+		</row>
+		<row>
+			<entry>secrets</entry>
+			<entry><para>Этот файл хранит SID рабочей группы/домена/машины, пароль  обновления каталога LDAP, и другие важные данные окружения, которые необходимы для корректной работы Samba. Этот файл содержит очень важную информацию, которая должна быть защищена. Она хранится в каталоге PRIVATE_DIR.</para></entry>
+		</row>
+		<row>
+			<entry>share_info</entry>
+			<entry><para>Хранит информацию ACL для каждого ресурса.</para></entry>
+		</row>
+		<row>
+			<entry>winbindd_idmap</entry>
+			<entry><para>Локальная база данных IDMAP Winbindd.</para></entry>
+		</row>
+		</tbody>
+	</tgroup>
+	</table>
+
+        <table frame="all" id="tdbtempfiledesc"><title>Описания временных файлов TDB.</title>
+        <tgroup cols="3">
+			<colspec align="left"/>
+			<colspec align="justify" colwidth="1*"/>
+			<colspec align="left"/>
+                <thead>
+                <row>
+                        <entry align="left">Имя</entry>
+                        <entry align="justify">ОПИСАНИЕ</entry>
+                        <entry align="center">Резервное копирование</entry>
+                </row>
+                </thead>
+                <tbody>
+		<row>
+			<entry>brlock</entry>
+			<entry><para>Информация о блокировках определенных диапазонов байтов.</para></entry>
+			<entry>нет</entry>
+		</row>
+		<row>
+			<entry>connections</entry>
+			<entry><para>Временный кэш информации о текущем соединении, используемой для отслеживания максимального числа соединений.</para></entry>
+			<entry>нет</entry>
+		</row>
+		<row>
+			<entry>eventlog/*tdb</entry>
+			<entry><para>Записи журнала событий. В большинстве случаев это просто кэш системных журналов.</para></entry>
+			<entry>нет</entry>
+		</row>
+		<row>
+			<entry>gencache</entry>
+			<entry><para>Кэширующая база данных общего назначения для неотвечающих WINS-серверов и междоменных доверительных отношений.</para></entry>
+			<entry>нет</entry>
+		</row>
+		<row>
+			<entry>login_cache</entry>
+			<entry><para>Временый кэш информации о входе в систему, в частности, число неудачных попыток ввода пароля.</para></entry>
+			<entry>нет</entry>
+		</row>
+		<row>
+			<entry>messages</entry>
+			<entry><para>Временное хранилище сообщений, обрабатываемых smbd.</para></entry>
+			<entry>нет</entry>
+		</row>
+		<row>
+			<entry>netsamlogon_cache</entry>
+			<entry><para>Кэширует данные пользователя net_info_3 structure после запроса net_samlogon (как as a domain member).</para></entry>
+			<entry>нет</entry>
+		</row>
+		<row>
+			<entry>perfmon/*.tdb</entry>
+			<entry><para>Информация счётчиков производительности.</para></entry>
+			<entry>нет</entry>
+		</row>
+		<row>
+			<entry>printing/*.tdb</entry>
+			<entry><para>Кэшированный вывод команды lpq, создаваемый для каждого ресурса печати.</para></entry>
+			<entry>нет</entry>
+		</row>
+		<row>
+			<entry>schannel_store</entry>
+			<entry><para>Секретный файл, хранимый в PRIVATE_DIR, содержащий криптографическую информацию о соединении, такую, что клиенты, которые временно отсоединились, могут соединиться повторно без необходимости повторного установления соединения.</para></entry>
+			<entry>нет</entry>
+		</row>
+		<row>
+			<entry>sessionid</entry>
+			<entry><para>Временный кэш для различной информации о сессиях иобслуживания utmp.</para></entry>
+			<entry>нет</entry>
+		</row>
+		<row>
+			<entry>unexpected</entry>
+			<entry><para>Хранит пакеты, полученные в отсутствие активных процессов-слушателей.</para></entry>
+			<entry>нет</entry>
+		</row>
+		<row>
+			<entry>winbindd_cache</entry>
+			<entry><para>Кэш информации о подлинности, полученной от домена NT4 или ADS. Включает в себя списки пользователей и т.д.</para></entry>
+			<entry>да</entry>
+		</row>
+		</tbody>
+	</tgroup>
+	</table>
+
+</sect2>
+
+<sect2>
+	<title>Запускаем Samba</title>
+
+	<para><indexterm><primary>демон</primary></indexterm> Samba, в сущности, состоит из двух или трёх демонов. Демон - приложение UNIX, которое запущено в фоновом режиме, и предоставляет сервисы. Пример сервиса - веб-сервер Apache, демон которого называется <command>httpd</command>. В случае Samba существует три демона из которых необходимы как минимум два.</para>
+
+	<para>Сервер Samba состоит из следующих демонов:</para>
+
+	<variablelist>
+		<varlistentry><term>nmbd</term>
+			<listitem><para><indexterm><primary>smbd</primary></indexterm><indexterm><primary>запускаем samba</primary><secondary>smbd</secondary></indexterm> Этот демон обрабатывает все запросы регистрации и разрешения имён. Это - основная "рабочая лошадка", используемая в просмотре сети. Он обслуживает все протоколы на основе UDP. Демон <command>nmbd</command> должен быть первой командой, запущенной как часть запуска Samba.</para></listitem>
+		</varlistentry>
+
+		<varlistentry><term>smbd</term>
+			<listitem><para><indexterm><primary>nmbd</primary></indexterm><indexterm><primary>запуск samba</primary><secondary>nmbd</secondary></indexterm> Этот демон обслуживает все виды соединений, основанные на TCP/IP, для файловых операций и операций печати. Он также управляет локальной аутентификацией.Его следует запускать немедленно после запуска <command>nmbd</command>.</para></listitem>
+		</varlistentry>
+
+		<varlistentry><term>winbindd</term>
+			<listitem><para><indexterm><primary>winbindd</primary></indexterm><indexterm><primary>запуск samba</primary><secondary>winbindd</secondary></indexterm> Этот демон необходимо запускать, когда Samba - член домена Windows NT4 or ADS. Он также необходим, когда Samba имеет доверительные отношения с другим доменом. Демон <command>winbindd</command> проверит файл &smb.conf; на присутствие параметров <parameter>idmap uid</parameter> и <parameter>idmap gid</parameter>. Если они найдены, <command>winbindd</command> будет использовать указанные значения для распределения UID и GID. Если эти параметры не указаны, <command>winbindd</command> запустится, но не сможет распределять UIDы или GIDы.</para></listitem>
+		</varlistentry>
+	</variablelist>
+
+	<para><indexterm><primary>загрузка</primary><secondary>процесс</secondary></indexterm> Когда Samba был упакован производителем операционной системы, процесс загрузки, как правило, сильно зависит от интеграции Samba в платформу как целое. Пожалуйста, обратитесь к документации по администрированию на операционную систему, чтобы получить специфичную информацию, касающуюся корректного управления процессом загрузки Samba.</para>
+
+</sect2>
+	
+<sect2>
+	<title>Пример конфигурации</title>
+	
+	<para><indexterm><primary>примеры</primary></indexterm><indexterm><primary>исходный код</primary></indexterm><indexterm><primary>дистрибутив</primary></indexterm><indexterm><primary>архив</primary></indexterm><indexterm><primary>пакет</primary></indexterm>В каталоге examples архива с исходным кодом есть примеры файлов настроек. Предполагается, что Вы тщательно их прочитаете - чтобы увидеть, как опции работают вместе на практике. Все опции можно увидеть на странице руководства. Скорее всего, стоит начать с файла настроек <filename>smb.conf.default</filename> и адаптировать его для своих нужд. Он содержит множество комментариев.</para>
+
+	<para><indexterm><primary>простейшая</primary><secondary>конфигурация</secondary></indexterm> Простейший файл настроек, которым можно пользоваться, должен содержать что-то похожее на <link linkend="simple-example">Ещё один простой файл smb.conf</link>. <indexterm><primary>простая конфигурация</primary></indexterm></para>
+
+<example id="simple-example">
+<title>Ещё один простой файл smb.conf</title>
+<smbconfblock>
+<smbconfsection name="[global]"/>
+<smbconfoption name="workgroup">&example.workgroup;</smbconfoption>
+
+<smbconfsection name="[homes]"/>
+<smbconfoption name="guest ok">нет</smbconfoption>
+<smbconfoption name="read only">нет</smbconfoption>
+</smbconfblock>
+</example>
+	
+	<para><indexterm><primary>соединения</primary></indexterm><indexterm><primary>учетная запись</primary></indexterm><indexterm><primary>имя входа</primary></indexterm><indexterm><primary>имя сервиса</primary></indexterm> Это позволит подключаться всем, кто имеет учетную запись на этом сервере, используя или их имя входа, или <smbconfsection name="homes"/> - как имя ресурса. (Заметьте: также необходимо установить рабочую группу, в которой должна появиться Samba. По умолчанию имя рабочей группы - WORKGROUP.)</para>
+	
+	<para><indexterm><primary>smbd</primary></indexterm> Проверьте, что Вы поместили файл &smb.conf; в правильное место. Заметьте, что правильное расположение этого файла зависит от того, как были скомпилированы двоичные файлы. Вы можете выяснить правильное расположение, исполнив в каталоге, содержащем <command>smbd</command>, команду: <screen>
+&rootprompt; smbd -b | grep smb.conf
+</screen></para>
+
+	<para><indexterm><primary>безопасность</primary><secondary>настройки</secondary></indexterm> Для более полной информации о настройках безопасности общего ресурса <smbconfsection name="[homes]"/>, подалуйста, обратитесь к <link linkend="securing-samba">Делаем Samba безопасной</link>.</para>
+
+<sect3>
+	<title>Проверяем Ваш файл настроек командой <command>testparm</command>.</title>
+
+	<para><indexterm><primary>проверка</primary></indexterm><indexterm><primary>testparm</primary></indexterm><indexterm><primary>ошибки в настройках</primary></indexterm> Важно проверять содержимое файла &smb.conf;, используя программу &testparm;. Если testparm отрабатывает правильно, будет выдан список ресурсов. Если нет, то будет выдано сообщение об ошибке. Удостоверьтесь в том, что она отрабатывает правильно и что сервисы выглядят нормально перед продолжением. Введите команду: <screen>
+	&rootprompt; testparm /etc/samba/smb.conf
+	</screen> Testparm просмотрит Ваш файл настроек и сообщит о любом неизвестном параметре или неправильном синтаксисе. Команда также выполнит проверку на наиболее общие ошиьки в настрройках и выведет предупреждение, если хоть одна из них будет найдена.</para>
+
+	<para>Всегда запускайте testparm в случае ЛЮБЫХ изменений файла &smb.conf;!</para>
+
+	<para><indexterm><primary>smbd</primary></indexterm><indexterm><primary>nmbd</primary></indexterm><indexterm><primary>winbindd</primary></indexterm><indexterm><primary>настройка</primary><secondary>документация</secondary></indexterm> Файл &smb.conf; постоянно проверяется демонами Samba  <command>smbd</command> и каждым порождаемым экземпляром, <command>nmbd</command> и <command>winbindd</command>. Хорошим тоном является содержание этого файла натсолько маленьким, насколько возможно. Многие администраторы предпочитают документировать настройки Samba, и таким образом необходимость держать файл маленьким идёт вразрез с мудростью хорошего документирования. Одно решение, которым можно воспользоваться - делать все описнаия и настройки в файле с другим именем, например, <filename>smb.conf.master</filename>. Утилита <command>testparm</command> может быть использована для генерации полностью оптимизированного файла &smb.conf; из этого главного файла с настройками и документацией: <screen>
+&rootprompt; testparm -s smb.conf.master &gt; smb.conf
+</screen> Этот метод администрирования делает возможным содержание детальных записей о изменениях настроек, в то же самое время сохраняя размер файла &smb.conf; минимально необходимым.</para>
+
+</sect3>
+</sect2>
+
+<sect2>
+	<title>SWAT</title>
+
+	<para><indexterm><primary>swat</primary></indexterm> SWAT - Web-интерфейс, который может быть использован для выполнения настройки Samba. SWAT может быть доступен не в пакете Samba, поставляемом с Вашей платформой, а в отдельном пакете. Если необходимо компилировать SWAT, пожалуйста, прочтите страницу  руководства SWAT, касающуюся компиляции, установки и настройки  SWAT из исходного кода.</para>
+
+	<para>Чтобы запустить SWAT, загрузите свой любимый Web-браузер, и перейдите по адресу <ulink url="http://localhost:901/" noescape="1">http://localhost:901/</ulink>. Замените <replaceable>localhost</replaceable> именем компьютера, на котором запущена Samba, если этот компьютер - не Ваш.</para>
+
+	<para>SWAT может быть использован из браузера на любой машине, соединенной по IP, но будьте осторожны, поскольку соединение с удаленной машиной может быть атаковано путём перехвата пароля - пароли пересылаются в открытом виде.</para>
+
+	<para>Больше информации о SWAT можно найти тут: <link linkend="SWAT">Инструмент веб-администрирования Samba</link>.</para>
+
+</sect2>
+
+</sect1>
+
+<sect1>
+	<title>Просмотр общих ресурсов, доступных на сервере</title>
+
+	<para>Чтобы увидеть общие ресурсы, доступные на настроенном сервере Samba, исполните следующую команду:</para>
+
+<para><screen>
+&prompt;<userinput>smbclient -L <replaceable>имя_вашего_хоста</replaceable></userinput>
+</screen></para>
+
+	<para>Вы должны увидеть список общих ресурсов, доступных на сервере. Если этого не произошло, значит, что-то неправильно настроено. Этот метод также может быть использован для просмотра списка доступных общих ресурсов на других SMB-серверах, таких, как Windows 2000.</para>
+
+	<para>Если Вы выбираете режим безопасности уровня пользователя, Вы можете обнаружить, что Samba запрашивает пароль до того, как выведет список общих ресурсов. Смотрите страницу руководства <command>smbclient</command> для дополнительных сведений. Вы можете заставить его вывести список общих ресурсов без пароля, добавив опцию <option>-N</option> к командной строке.</para>
+</sect1>
+
+<sect1>
+	<title>Подключение клиента UNIX</title>
+	
+	<para>Введите следующую команду: <screen>
+&prompt;<userinput>smbclient <replaceable> //ваш_хост/ресурс</replaceable></userinput>
+</screen></para>
+	
+	<para>Обычно <replaceable>имя_Вашего_хоста</replaceable> - имя хоста, на который установлен &smbd;. <replaceable>aservice</replaceable> - любой общий ресурс, который был определен в файле &smb.conf;. Попробуйте Ваше имя пользователя, если у Вас в &smb.conf; есть только секция <smbconfsection name="[homes]"/>.</para>
+
+	<para>Пример: Если UNIX-хост называется <replaceable>bambi</replaceable>, и корректное имя пользователя <replaceable>fred</replaceable>, Вам следует набрать:</para>
+
+<para><screen>
+&prompt;<userinput>smbclient //<replaceable>bambi</replaceable>/<replaceable>fred</replaceable></userinput>
+</screen></para>
+</sect1>
+
+<sect1>
+	<title>Подключение удаленного SMB-клиента</title>
+
+	<para>Сейчас, когда Samba работает корректно при локальном доступе, Вы можете попробовать получить доступ с других клиентов. Через несколько минут хост с Samba будет показан в "Сетевом окружении" всех Windows-клиентов подсети. Попробуйте просмотреть сервер с другого клиента или "смонтировать" его.</para>
+
+	<para>Монтирование дисков из DOS, Windows или OS/2 может быть сделано путём запуска команды: <screen>
+&dosprompt;<userinput>net use m: \\имя_сервера\имя_общего_ресурса\</userinput>
+</screen> Здесь буква m: - любая незанятая буква дисков. Важно убедиться в том, что общий ресурс с указанным именем действительно существует.</para>
+
+	<para>Попробуйте печать, например, так: <screen>
+&dosprompt;<userinput>net use lpt1:	\\имя_сервера\сервис_печати</userinput>
+</screen> <literal>Сервис_печати</literal> является именем притера (на самом деле очереди печати) на указанном сервере. Это позволит все задания печати, которые перехватываются портом lpt1: на Windows-клиенте, отсылать на принтер, который владеет очередью печати с указанным именем.</para>
+
+<para>
+<screen>&dosprompt;<userinput>print filename</userinput>
+</screen></para>
+
+	<sect2>
+	<title>Что, если ничего не работает? </title>
+	
+	<para>Вы можете прочитать <link linkend="diagnosis">Контрольный список Samba</link>. Если у Вас всё еще ничего не получается, обратитесь к <link linkend="problems">Анализ и решение проблем с Samba</link>. Samba был успешно установлен на тысячах сетей по всему миру. Непохоже, чтобы Ваша частная проблема была уникальной, так что стоит выполнить поиск в Интернете, чтобы узнать - может,  кто-то уже встречался с Вашей проблемой, и нашёл способ её преодолеть.s</para>
+
+	<para>Если Вы - новичок в Samba, и, в частности, в Windows-сетях или Linux/Unix, книга <quote>Samba-3 by Example</quote> поможет Вам создать проверенные сетевые настройки. Просто выберите из первых пяти глав дизайн сети, который более всего соответствует Вашим требованиям, а затем следуйте простой пошаговой процедуре развертывания. Позднее, когда у Вас уже будет работающая сеть, Вы можете снова вернуться к этой книге для изучения возможностей дальнейшего улучшения.</para>
+
+	</sect2>
+
+	<sect2>
+	<title>Все еще ничего не получается?</title>
+
+	<para>Лучший совет under the stress of abject frustration остыть! Это всё интересно и вызывающе, но пока Вы сердиты или раздражены, Ваша способность найти решение как будто подорвана. Холодный ум очищает путь к тому, чтобы найти ответ. Просто помните, у каждой проблемы есть решение &smbmdash; соответственно есть хороший шанс того, что кто-то уже нашел его, несмотря на то, что у Вас прямо сейчас это не получается. Это изменится со временем, терпением и обучением.</para>
+
+	<para>Сейчас, когда Вы слегка остыли, пожалуйста, обратитесь к <link linkend="diagnosis">Контрольному списку Samba</link> за указаниями по идентификации проблемы.</para>
+
+	</sect2>
+
+</sect1>
+
+<sect1>
+<title>Общие ошибки</title>
+
+<para>Следующие вопросы и проблемы постоянно описываются в списке рассылки Samba.</para>
+
+<sect2>
+	<title>Большое число процессов smbd</title>
+
+	<para>Samba состоит из трех программ: &nmbd;, &smbd;, и &winbindd;. &nmbd; - демон сообщений сервера имен, &smbd; - демон сервера сообщений, а &winbindd; - демон, который занимается связью с котроллером домена.</para>
+
+	<para>Если Samba <emphasis>НЕ</emphasis> выполняет роль WINS-сервера, то будет запущен только один экземпляр &nmbd;. Если он выполняет роль WINS-сервера, то будет два экземпляра &nmbd;&dash; один из них обслуживает WINS-запросы.</para>
+
+	<para>&smbd; обслуживает все запросы на подключение. Он порождает новый процесс для каждого соединения, сделанного клиентом. Именно поэтому Вы можете увидеть их так много - по одному на каждое клиентское соединение.</para>
+
+	<para>&winbindd; запустится как один или два демона, в зависимости от того, запущен ли он в <emphasis>расщепленном режиме</emphasis> (в этом случае будет два экземпляра).</para>
+
+	</sect2>
+
+	<sect2>
+		<title>Сообщение об ошибке: open_oplock_ipc</title>
+
+	<para>В логах при запуске &smbd; встречается сообщение: <quote>open_oplock_ipc: Failed to get local UDP socket for address 100007f. Error was Cannot assign requested.</quote></para>
+
+	<para>Ваше устройство петли не работает правильно. Удостоверьтесь, что оно настроено правильно. Устройство петли - внутреннее (виртуальное) сетевое устройство с IP-адресом <emphasis>127.0.0.1</emphasis>. Прочтите документацию по Вашей ОС, чтобы узнать, как настроить устройство петли на Вашей системе.</para>
+
+	</sect2>
+
+	<sect2>
+		<title><quote><errorname>Сетевое имя не может быть найдено</errorname></quote></title>
+
+		<para>Ошибка может быть следствием одной из этих причин:</para>
+
+		<itemizedlist>
+			<listitem><para>Вы указали несуществующий путь к общему ресурсу в &smb.conf;.</para></listitem>
+
+			<listitem><para>Пользователь, под именем которого Вы пытаетесь подключиться к общему ресурсу, не имеет достаточных разрешений на доступ к месту расположения общего ресурса: необходимы разрешения на чтение (r) и доступ (x). </para></listitem>
+
+			<listitem><para>Общий ресурс, к которому Вы пытаетесь получить доступ, не существует.</para></listitem>
+	</itemizedlist>
+
+	</sect2>
+</sect1>
+
+</chapter>

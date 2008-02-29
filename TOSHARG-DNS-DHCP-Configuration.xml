@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE chapter PUBLIC "-//Samba-Team//DTD DocBook V4.2-Based Variant V1.0//EN" "http://www.samba.org/samba/DTD/samba-doc">
+<chapter id="DNSDHCP">
+<chapterinfo>
+	&author.jht;
+</chapterinfo>
+
+<title>Руководство по настройке DNS и DHCP</title>
+
+<sect1>
+<title>Особенности и сильные стороны</title>
+
+<para><indexterm><primary>Dynamic Host Configuration Protocol</primary><see>DHCP</see></indexterm><indexterm><primary>Domain Name System</primary><see>DNS</see></indexterm> В мире UNIX вообще существует очень мало вещей, из-за которых возникает столько же споров, сколько из-за системы доменных имен (DNS) и протокола динамической настройки хостов (DHCP). Не все мнения, существующие за или против конкретных частных реализаций DNS и DHCP, верны.</para>
+
+<para>Мы живем в современном мире, где многим пользователям информационных технологий нужна мобильность и свобода. Пользователи Microsoft Windows, в частности, ожидают, что можно воткнуть ноутбук в сетевой порт, и <quote>чтобы все заработало</quote>.</para>
+
+<para><indexterm><primary>ADS</primary></indexterm> У UNIX-администраторов есть преимущество. Множество нормальных практик в мире Microsoft Windows в лучшем случае граничат с плохой практикой с точки зрения безопасности. Сетевые протоколы Microsoft Windows позволяют рабочим станциям произвольно регистрироваться в сети. Windows 2000 Active Directory регистрирует записи в пространстве имен DNS, что равно озадачивает администраторов UNIX. Добро пожаловать в новый мир!</para>
+
+
+<para><indexterm><primary>ISC</primary><secondary>DNS</secondary></indexterm><indexterm><primary>ISC</primary><secondary>DHCP</secondary></indexterm><indexterm><primary>Dynamic DNS</primary><see>DDNS</see></indexterm> Цель этой главы - продемонстрировать настройку серверов Internet Software Consortium (ISC) DNS и DHCP, обеспечивающих динамические сервисы, совместимые со своими эквивалентами в продуктах Microsoft Windows 2000 Server.</para>
+
+<para>Эта глава не предоставляет ничего более, чем работающий пример файлов настройки для серверов DNS и DHCP. Использованные примеры соответствуют примерам настроек, использованным где-либо еще в этом документе.</para>
+
+<para><indexterm><primary>DNS</primary></indexterm><indexterm><primary>DHCP</primary></indexterm><indexterm><primary>BIND9.NET</primary></indexterm> Эта глава явным образом не предоставляет учебного материала и не претендует на то, чтобы быть справочным руководством по DNS и DHCP, поскольку это лежит далеко за пределами поля зрения и цели этго документа в целом. Все, кто хочет более детализированного справочного материала по DNS или DHCP, должны посетить веб-сайт ISC по адресу <ulink noescape="1" url="http://www.isc.org"> http://www.isc.org</ulink>. Тем, кому нужен печатны текст, могут быть интересны публикации по DNS от O'Reilly, смотри веб-сайт <ulink url="http://www.oreilly.com/catalog/dns/index.htm">O'Reilly</ulink>, и веб-сайт <ulink url="http://www.bind9.net/books-dhcp">BIND9.NET</ulink> для детальной информации. Вот эти книги:</para>
+
+<orderedlist>
+	<listitem><para>DNS and BIND, By Cricket Liu, Paul Albitz, ISBN: 1-56592-010-4</para></listitem>
+	<listitem><para>DNS &amp; Bind Cookbook, By Cricket Liu, ISBN: 0-596-00410-9</para></listitem>
+	<listitem><para>The DHCP Handbook (2nd Edition), By: Ralph Droms, Ted Lemon, ISBN 0-672-32327-3</para></listitem>
+</orderedlist>
+
+</sect1>
+
+<sect1>
+<title>Пример конфигурации</title>
+
+<para><indexterm><primary>WINS</primary></indexterm><indexterm><primary>DNS</primary></indexterm> DNS для Интернета значит то же, что вода для жизни. Практически все информационные ресурсы (имена хостов) разрешаются в свои адреса IP через DNS. Сети Windows очень старались избежать сложностей DNS, но, к сожалению, DNS выиграла. <indexterm><primary>WINS</primary></indexterm> Альтернатива DNS, Windows Internet Name Service (WINS - сервис Интернет-имен Windows) &smbmdash; искуственный продукт сетей на базе протоколов NetBIOS поверх TCP/IP &smbmdash; продемонстрировал проблеиы с масштабируемостью, так же, как плоское, не иерархическое пространство имен, которое стало неуправляемым по мере роста размера и сложности ИТ-сетей.</para>
+
+<para><indexterm><primary>RFC 1001</primary></indexterm><indexterm><primary>RFC 1002</primary></indexterm> WINS является реализацией службы имен NetBIOS (NBNS), описанной в RFC1001/1002, от Microsoft. Она позволяет клиентам NetBIOS (например, компьютеры с Microsoft Windows) регистрировать произвольное имя компьютера, которое выбрал администратор или пользователь, вместе с IP-адресо, который был выдан машине. Посредством WINS компьютеры-клиенты сети могли разрешать имена машин в IP-адреса.</para>
+
+<para>The demand for an alternative to the limitations of NetBIOS networking finally drove Microsoft to use DNS and Active Directory. Microsoft's new implementation attempts to use DNS in a manner similar to the way that WINS is used for NetBIOS networking. Both WINS and Microsoft DNS rely on dynamic name registration.</para> 
+
+<para>Клиенты Microsoft Windows могут выполнять динамическую регистрацию имен на сервере DNS при загрузке. Как альтернатива, в случае использования DHCP для назначения IP-адресов рабочим станциям, возможна регистрация имен хостов и их IP-адресов DHCP-сервером сразу после подтверждения клиентом аренды IP-адреса. В конце концов, Microsoft DNS-сервер может разрешать имена через Microsoft WINS.</para>
+
+<para>Следующие конфигурации демонстрируют простой, небезопасный сервер динамической DNS, и простой сервер DHCP, который соответствует конфигурации DNS.</para>
+
+	<sect2>
+	<title>Динамическая DNS</title>
+
+	<para><indexterm><primary>DNS</primary><secondary>динамическая</secondary></indexterm> Пример конфигурации DNS приведен для частной сети в пространстве IP-адресов 192.168.1.0/24. Классы адресов частных сетей установлены в RFC1918.</para>
+
+
+	<para><indexterm><primary>BIND</primary></indexterm> Предполагается, что эта сеть будет расположена за безопасным файрволом. Следующие файлы работают с ISC BIND версии 9. BIND - Berkeley Internet Name Daemon (демон Интернет-имен Беркли).</para>
+
+	<para>Главный файл настроек <filename>/etc/named.conf</filename> определяет расположение всех используемых в дальнейшем файлов настроек. Расположение и имя этого файла указано в сценариях загрузки, которые являются частью оперционной системы. <programlisting>
+# Quenya.Org файл настройки
+
+acl mynet {
+	192.168.1.0/24;
+	127.0.0.1;
+};
+
+options {
+
+	directory "/var/named";
+	listen-on-v6 { any; };
+	notify no;
+	forward first;
+	forwarders {
+		192.168.1.1;
+		};
+	auth-nxdomain yes;
+	multiple-cnames yes;
+	listen-on {
+		mynet;
+		};
+};
+
+# Следующие три определения зон не нуждаются ни в какой модификации.
+# Первое определяет localhost, второе - 
+# обратный поиск для localhost. Последняя зона  "." является 
+# определением корневых серверов имен.
+
+zone "localhost" in {
+	type master;
+	file "localhost.zone";
+};
+
+zone "0.0.127.in-addr.arpa" in {
+	type master;
+	file "127.0.0.zone";
+};
+
+zone "." in {
+	type hint;
+	file "root.hint";
+};
+
+# Вы можете вставить дальнейшие записи зон для своих собственных доменов ниже.
+
+zone "quenya.org" {
+	type master;
+	file "/var/named/quenya.org.hosts";
+	allow-query {
+		mynet;
+		};
+	allow-transfer {
+		mynet;
+		};
+	allow-update {
+		mynet;
+		};
+	};
+
+zone "1.168.192.in-addr.arpa" {
+	type master;
+	file "/var/named/192.168.1.0.rev";
+	allow-query {
+		mynet;
+	};
+	allow-transfer {
+		mynet;
+	};
+	allow-update {
+		mynet;
+	};
+};
+</programlisting></para>
+
+	<para>Следующие файлы расположены в каталоге <filename>/var/named</filename>. Это файл <filename>/var/named/localhost.zone</filename>: <programlisting>
+$TTL 1W
+@               IN SOA  @   root (
+				42              ; серийный номер (d. adams)
+				2D              ; обновление
+				4H              ; период повтора
+				6W              ; срок годности
+				1W )            ; минимум
+
+		IN NS           @
+		IN A            127.0.0.1
+	</programlisting></para>
+
+	<para>Файл <filename>/var/named/127.0.0.zone</filename>: <programlisting>
+$TTL 1W
+@               IN SOA          localhost.  root.localhost. (
+				42              ; серийник (d. adams)
+				2D              ; обновление
+				4H              ; повтор
+				6W              ; срок годности
+				1W )            ; минимум
+
+				IN NS           localhost.
+1               IN PTR          localhost.
+</programlisting></para>
+
+	<para>Файл <filename>/var/named/quenya.org.host</filename>: <programlisting>
+$ORIGIN .
+$TTL 38400      ; 10 часов 40 минут
+quenya.org      IN SOA  marvel.quenya.org. root.quenya.org. (
+				2003021832 ; серийник
+				10800      ; обновление (3 часа)
+				3600       ; повтор (1 час)
+				604800     ; срок годности (1 неделя)
+				38400      ; минимум (10 часов 40 минут)
+				)
+			NS      marvel.quenya.org.
+			MX      10 mail.quenya.org.
+$ORIGIN quenya.org.
+frodo                   A       192.168.1.1
+marvel                  A       192.168.1.2
+;
+mail                    CNAME   marvel
+www                     CNAME   marvel
+</programlisting></para>
+
+<para>Файл <filename>/var/named/192.168.1.0.rev</filename>: <programlisting>
+$ORIGIN .
+$TTL 38400      ; 10 часов 40 минут
+1.168.192.in-addr.arpa  IN SOA  marvel.quenya.org. root.quenya.org. (
+				2003021824 ; серийник
+				10800      ; обновление (3 часа)
+				3600       ; повтор (1 час)
+				604800     ; срок годности (1 неделя)
+				38400      ; минимум (10 часов 40 минут)
+				)
+			NS      marvel.quenya.org.
+$ORIGIN 1.168.192.in-addr.arpa.
+1                       PTR     frodo.quenya.org.
+2                       PTR     marvel.quenya.org.
+</programlisting></para>
+
+	<para><indexterm><primary>BIND</primary></indexterm><indexterm><primary>файлы динамической регистрации</primary></indexterm> Файлы настроек, показанные здесь, были скопированы из полностью работающей системы. Все динамически зарегистрированные записи были убраны. В дополнение к этим файлам BIND версии 9 создаст для каждого файла динамической регистрации файл с расширением <filename>.jnl</filename>. Не редактируйте и не работайте с этими файлами настроек или с созданными файлами <filename>.jnl</filename>.</para>
+
+	</sect2>
+
+	<sect2 id="DHCP">
+	<title>Сервер DHCP</title>
+
+	<para>Следующий файл используется с сервером ISC DHCP версии 3. Файл расположен в <filename>/etc/dhcpd.conf</filename>:</para>
+
+	<para>
+	<programlisting>
+ddns-updates on;
+ddns-domainname "quenya.org";
+option ntp-servers 192.168.1.2;
+ddns-update-style ad-hoc;
+allow unknown-clients;
+default-lease-time 86400;
+max-lease-time 172800;
+
+option domain-name "quenya.org";
+option domain-name-servers 192.168.1.2;
+option netbios-name-servers 192.168.1.2;
+option netbios-dd-server 192.168.1.2;
+option netbios-node-type 8;
+
+subnet 192.168.1.0 netmask 255.255.255.0 {
+	range dynamic-bootp 192.168.1.60 192.168.1.254;
+	option subnet-mask 255.255.255.0;
+	option routers 192.168.1.2;
+	allow unknown-clients;
+}
+</programlisting>
+	</para>
+
+	<para>В этом примере IP-адреса между 192.168.1.1 и 192.168.1.59 зарезервированы для фиксированных (часто называемых <constant>постоянными</constant>) IP-адресов. Адреса между 192.168.1.60 и 192.168.1.254 распределены для динамического использования.</para>
+
+	</sect2>
+
+</sect1>
+</chapter>
